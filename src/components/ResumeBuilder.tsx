@@ -18,6 +18,7 @@ import {
 } from "../utils/storageService";
 import { Container, Heading1, Text, Button, Row, Col, Spacer } from "./Common";
 import CollapsibleSection from "./Common/CollapsibleSection";
+import { TemplateStyleProvider } from "./Common/TemplateStyleManager";
 
 // A4 paper dimensions constants
 const A4_WIDTH_MM = 210; // Width in mm
@@ -339,98 +340,109 @@ const ResumeBuilder: React.FC = () => {
         )}
       </Header>
 
-      <ContentLayout>
-        {/* Form Section */}
-        <FormColumn>
-          <ButtonGroup>
-            <Button
-              onClick={exportToPdf}
-              disabled={isPdfExporting}
-              variant={isPdfExporting ? undefined : "primary"}
-              style={{
-                opacity: isPdfExporting ? 0.75 : 1,
-                cursor: isPdfExporting ? "not-allowed" : "pointer",
-              }}
+      {/* Wrap content with TemplateStyleProvider */}
+      <TemplateStyleProvider selectedTemplate={selectedTemplate}>
+        <ContentLayout>
+          {/* Form Section */}
+          <FormColumn>
+            <ButtonGroup>
+              <Button
+                onClick={exportToPdf}
+                disabled={isPdfExporting}
+                $variant={isPdfExporting ? undefined : "primary"}
+                style={{
+                  opacity: isPdfExporting ? 0.75 : 1,
+                  cursor: isPdfExporting ? "not-allowed" : "pointer",
+                }}
+              >
+                {isPdfExporting ? "Generating PDF..." : "Export to PDF"}
+              </Button>
+              <Button onClick={exportToDocx} $variant="success">
+                Export to DOCX
+              </Button>
+              <Button onClick={resetForm} $variant="error">
+                Reset
+              </Button>
+
+              {lastEdited && (
+                <LastSavedText>
+                  Last saved: {formatLastEdited(lastEdited)}
+                </LastSavedText>
+              )}
+            </ButtonGroup>
+
+            <CollapsibleSection
+              title="Template & Layout"
+              defaultExpanded={true}
             >
-              {isPdfExporting ? "Generating PDF..." : "Export to PDF"}
-            </Button>
-            <Button onClick={exportToDocx} variant="success">
-              Export to DOCX
-            </Button>
-            <Button onClick={resetForm} variant="error">
-              Reset
-            </Button>
+              <TemplateSelector
+                selectedTemplate={selectedTemplate}
+                onSelectTemplate={setSelectedTemplate}
+              />
 
-            {lastEdited && (
-              <LastSavedText>
-                Last saved: {formatLastEdited(lastEdited)}
-              </LastSavedText>
-            )}
-          </ButtonGroup>
+              <Spacer size={4} />
 
-          <CollapsibleSection title="Template & Layout" defaultExpanded={true}>
-            <TemplateSelector
+              <MarginSizeSelector
+                selectedMarginSize={marginSize}
+                onChange={setMarginSize}
+              />
+            </CollapsibleSection>
+
+            {/* Use the template-aware editor components in each section */}
+            <CollapsibleSection
+              title="Personal Information"
+              defaultExpanded={true}
+            >
+              <PersonalInfo
+                personalData={resumeData.personal}
+                setPersonalData={(data) =>
+                  setResumeData({ ...resumeData, personal: data })
+                }
+                useTemplateStyles={true}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Work Experience">
+              <Experience
+                experienceData={resumeData.experience}
+                setExperienceData={(data) =>
+                  setResumeData({ ...resumeData, experience: data })
+                }
+                useTemplateStyles={true}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Education">
+              <Education
+                educationData={resumeData.education}
+                setEducationData={(data) =>
+                  setResumeData({ ...resumeData, education: data })
+                }
+                // useTemplateStyles={true}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Skills">
+              <Skills
+                skillsData={resumeData.skills}
+                setSkillsData={(data) =>
+                  setResumeData({ ...resumeData, skills: data })
+                }
+                // useTemplateStyles={true}
+              />
+            </CollapsibleSection>
+          </FormColumn>
+
+          {/* Preview Section */}
+          <PreviewColumn>
+            <DynamicScalingPreview
+              resumeData={resumeData}
               selectedTemplate={selectedTemplate}
-              onSelectTemplate={setSelectedTemplate}
+              marginSize={marginSize}
             />
-
-            <Spacer size={4} />
-
-            <MarginSizeSelector
-              selectedMarginSize={marginSize}
-              onChange={setMarginSize}
-            />
-          </CollapsibleSection>
-
-          <CollapsibleSection
-            title="Personal Information"
-            defaultExpanded={true}
-          >
-            <PersonalInfo
-              personalData={resumeData.personal}
-              setPersonalData={(data) =>
-                setResumeData({ ...resumeData, personal: data })
-              }
-            />
-          </CollapsibleSection>
-
-          <CollapsibleSection title="Work Experience">
-            <Experience
-              experienceData={resumeData.experience}
-              setExperienceData={(data) =>
-                setResumeData({ ...resumeData, experience: data })
-              }
-            />
-          </CollapsibleSection>
-
-          <CollapsibleSection title="Education">
-            <Education
-              educationData={resumeData.education}
-              setEducationData={(data) =>
-                setResumeData({ ...resumeData, education: data })
-              }
-            />
-          </CollapsibleSection>
-
-          <CollapsibleSection title="Skills">
-            <Skills
-              skillsData={resumeData.skills}
-              setSkillsData={(data) =>
-                setResumeData({ ...resumeData, skills: data })
-              }
-            />
-          </CollapsibleSection>
-        </FormColumn>
-
-        {/* Preview Section */}
-        <PreviewColumn>
-          <DynamicScalingPreview
-            resumeData={resumeData}
-            selectedTemplate={selectedTemplate}
-            marginSize={marginSize}
-          />
-        </PreviewColumn>
-      </ContentLayout>
+          </PreviewColumn>
+        </ContentLayout>
+      </TemplateStyleProvider>
     </PageContainer>
   );
 };

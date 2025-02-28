@@ -21,8 +21,8 @@ const SampleSection = styled.div`
   margin-bottom: 0.25rem;
 `;
 
-const SampleSectionHeader = styled.div<{ template: any }>`
-  ${(props) => props.template.sectionHeader}
+const SampleSectionHeader = styled.div<{ $template: any }>`
+  ${(props) => props.$template.sectionHeader}
   font-size: 0.5rem !important; /* Override the template's font size */
 `;
 
@@ -31,6 +31,25 @@ const SampleLine = styled.div`
   background-color: #e5e7eb;
   width: 100%;
   border-radius: 0.125rem;
+`;
+
+// Template-specific styled components
+const TemplateContainer = styled.div<{ $template: any }>`
+  ${(props) => props.$template.container}
+`;
+
+const TemplateHeader = styled.div<{ $template: any }>`
+  ${(props) => props.$template.header}
+`;
+
+const TemplateName = styled.div<{ $template: any }>`
+  ${(props) => props.$template.nameStyle}
+  font-size: 0.75rem !important; /* Override the template's font size */
+`;
+
+const TemplateTitle = styled.div<{ $template: any }>`
+  ${(props) => props.$template.title}
+  font-size: 0.5rem !important; /* Override the template's font size */
 `;
 
 // A miniature preview of how the resume template will look
@@ -46,39 +65,20 @@ const TemplatePreviewCard: React.FC<TemplatePreviewCardProps> = ({
     sections: ["Summary", "Experience", "Education", "Skills"],
   };
 
-  // Create styled components that apply the template styles
-  const TemplateContainer = styled.div`
-    ${template.container}
-  `;
-
-  const TemplateHeader = styled.div`
-    ${template.header}
-  `;
-
-  const TemplateName = styled.div`
-    ${template.nameStyle}
-    font-size: 0.75rem !important; /* Override the template's font size */
-  `;
-
-  const TemplateTitle = styled.div`
-    ${template.title}
-    font-size: 0.5rem !important; /* Override the template's font size */
-  `;
-
   return (
     <PreviewContainer>
-      <TemplateContainer>
+      <TemplateContainer $template={template}>
         {/* Miniature header */}
-        <TemplateHeader>
-          <TemplateName>{sampleData.name}</TemplateName>
-          <TemplateTitle>{sampleData.title}</TemplateTitle>
+        <TemplateHeader $template={template}>
+          <TemplateName $template={template}>{sampleData.name}</TemplateName>
+          <TemplateTitle $template={template}>{sampleData.title}</TemplateTitle>
         </TemplateHeader>
 
         {/* Sample sections */}
         <div style={{ marginTop: "0.25rem" }}>
           {sampleData.sections.map((section, index) => (
             <SampleSection key={index}>
-              <SampleSectionHeader template={template}>
+              <SampleSectionHeader $template={template}>
                 {section}
               </SampleSectionHeader>
               <SampleLine />

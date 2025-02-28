@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { templateStyles, DEFAULT_TEMPLATE } from "../templates";
 import { ResumeData, TemplateId } from "../../types/resume";
 import { Heading2 } from "../Common";
+import SafeHTMLContent from "../Common/HTMLContent";
 
 // A4 paper dimensions constants
 const A4_WIDTH_MM = 210; // Width in mm
@@ -18,7 +19,7 @@ interface DynamicScalingPreviewProps {
 
 interface ResumeContentProps {
   resumeData: ResumeData;
-  template: any;
+  $template: any;
 }
 
 // Styled components for the preview
@@ -41,7 +42,7 @@ const PreviewWrapper = styled.div`
 
 interface PreviewPageProps {
   scale: number;
-  pageMarginPx: number;
+  $pageMarginPx: number;
 }
 
 const PreviewPage = styled.div<PreviewPageProps>`
@@ -61,13 +62,13 @@ const PreviewPage = styled.div<PreviewPageProps>`
 const PageContent = styled.div<PreviewPageProps>`
   position: absolute;
   inset: 0;
-  padding: ${(props) => props.pageMarginPx}px;
+  padding: ${(props) => props.$pageMarginPx}px;
   overflow: hidden;
 `;
 
 interface ContentWrapperProps {
   scale: number;
-  pageMarginMM: number;
+  $pageMarginMM: number;
 }
 
 const ContentWrapper = styled.div<ContentWrapperProps>`
@@ -75,19 +76,19 @@ const ContentWrapper = styled.div<ContentWrapperProps>`
   overflow: hidden;
   transform-origin: top left;
   transform: scale(${(props) => props.scale});
-  width: ${(props) => (A4_WIDTH_MM - props.pageMarginMM * 2) * MM_TO_PX}px;
-  height: ${(props) => (A4_HEIGHT_MM - props.pageMarginMM * 2) * MM_TO_PX}px;
+  width: ${(props) => (A4_WIDTH_MM - props.$pageMarginMM * 2) * MM_TO_PX}px;
+  height: ${(props) => (A4_HEIGHT_MM - props.$pageMarginMM * 2) * MM_TO_PX}px;
   position: relative;
 `;
 
 interface ContentPositionerProps {
-  pageIndex: number;
-  contentPerPage: number;
+  $pageIndex: number;
+  $contentPerPage: number;
 }
 
 const ContentPositioner = styled.div<ContentPositionerProps>`
   position: absolute;
-  top: -${(props) => props.pageIndex * props.contentPerPage}px;
+  top: -${(props) => props.$pageIndex * props.$contentPerPage}px;
   width: 100%;
 `;
 
@@ -110,16 +111,16 @@ const HiddenContent = styled.div`
 `;
 
 // Resume-specific styled components
-const ResumeHeader = styled.div<{ template: any }>`
-  ${(props) => props.template.header}
+const ResumeHeader = styled.div<{ $template: any }>`
+  ${(props) => props.$template.header}
 `;
 
-const ResumeName = styled.h1<{ template: any }>`
-  ${(props) => props.template.nameStyle}
+const ResumeName = styled.h1<{ $template: any }>`
+  ${(props) => props.$template.nameStyle}
 `;
 
-const ResumeTitle = styled.p<{ template: any }>`
-  ${(props) => props.template.title}
+const ResumeTitle = styled.p<{ $template: any }>`
+  ${(props) => props.$template.title}
 `;
 
 const ResumeContactInfo = styled.div`
@@ -140,12 +141,12 @@ const ContactItem = styled.span`
   white-space: nowrap;
 `;
 
-const ResumeSection = styled.div<{ template: any }>`
-  ${(props) => props.template.section}
+const ResumeSection = styled.div<{ $template: any }>`
+  ${(props) => props.$template.section}
 `;
 
-const SectionHeader = styled.h2<{ template: any }>`
-  ${(props) => props.template.sectionHeader}
+const SectionHeader = styled.h2<{ $template: any }>`
+  ${(props) => props.$template.sectionHeader}
 `;
 
 const ExperienceItem = styled.div`
@@ -159,8 +160,8 @@ const ExperienceHeader = styled.div`
   margin-bottom: 0.25rem;
 `;
 
-const ItemTitle = styled.h3<{ template: any }>`
-  ${(props) => props.template.itemTitle}
+const ItemTitle = styled.h3<{ $template: any }>`
+  ${(props) => props.$template.itemTitle}
 `;
 
 const ItemDetails = styled.div`
@@ -169,28 +170,22 @@ const ItemDetails = styled.div`
   align-items: center;
 `;
 
-const ItemSubtitle = styled.span<{ template: any }>`
-  ${(props) => props.template.itemSubtitle}
+const ItemSubtitle = styled.span<{ $template: any }>`
+  ${(props) => props.$template.itemSubtitle}
 `;
 
-const ItemDate = styled.span<{ template: any }>`
-  ${(props) => props.template.itemDate}
+const ItemDate = styled.span<{ $template: any }>`
+  ${(props) => props.$template.itemDate}
   font-size: 0.75rem;
   white-space: nowrap;
 `;
 
-const ItemDescription = styled.p<{ template: any }>`
-  ${(props) => props.template.text}
-  margin-top: 0.25rem;
-  white-space: pre-line;
+const SkillsContainer = styled.div<{ $template: any }>`
+  ${(props) => props.$template.skillsContainer}
 `;
 
-const SkillsContainer = styled.div<{ template: any }>`
-  ${(props) => props.template.skillsContainer}
-`;
-
-const SkillItem = styled.span<{ template: any }>`
-  ${(props) => props.template.skill}
+const SkillItem = styled.span<{ $template: any }>`
+  ${(props) => props.$template.skill}
 `;
 
 const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
@@ -341,7 +336,7 @@ const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
               width: `${(A4_WIDTH_MM - pageMarginMM * 2) * MM_TO_PX}px`,
             }}
           >
-            <ResumeContent resumeData={resumeData} template={template} />
+            <ResumeContent resumeData={resumeData} $template={template} />
           </div>
         </HiddenContent>
 
@@ -357,24 +352,22 @@ const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
                   : `resume-preview-page-${index + 1}`
               }
               scale={scale}
-              pageMarginPx={pageMarginMM * MM_TO_PX * scale}
+              $pageMarginPx={pageMarginMM * MM_TO_PX * scale}
             >
-              {/* Actual page content */}
               <PageContent
                 scale={scale}
-                pageMarginPx={pageMarginMM * MM_TO_PX * scale}
+                $pageMarginPx={pageMarginMM * MM_TO_PX * scale}
               >
-                {/* Resume content with proper positioning for each page */}
-                <ContentWrapper scale={scale} pageMarginMM={pageMarginMM}>
+                <ContentWrapper scale={scale} $pageMarginMM={pageMarginMM}>
                   <ContentPositioner
-                    pageIndex={index}
-                    contentPerPage={
+                    $pageIndex={index}
+                    $contentPerPage={
                       ((A4_HEIGHT_MM - pageMarginMM * 2) * MM_TO_PX) / scale
                     }
                   >
                     <ResumeContent
                       resumeData={resumeData}
-                      template={template}
+                      $template={template}
                     />
                   </ContentPositioner>
                 </ContentWrapper>
@@ -397,16 +390,16 @@ const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
 // Separate component for the actual resume content
 const ResumeContent: React.FC<ResumeContentProps> = ({
   resumeData,
-  template,
+  $template: templateProp,
 }) => {
   return (
     <>
       {/* Header/Personal Info */}
-      <ResumeHeader template={template}>
-        <ResumeName template={template}>
+      <ResumeHeader $template={templateProp}>
+        <ResumeName $template={templateProp}>
           {resumeData.personal.name || "Your Name"}
         </ResumeName>
-        <ResumeTitle template={template}>
+        <ResumeTitle $template={templateProp}>
           {resumeData.personal.title || "Professional Title"}
         </ResumeTitle>
 
@@ -425,34 +418,37 @@ const ResumeContent: React.FC<ResumeContentProps> = ({
 
       {/* Summary */}
       {resumeData.personal.summary && (
-        <ResumeSection template={template}>
-          <SectionHeader template={template}>
+        <ResumeSection $template={templateProp}>
+          <SectionHeader $template={templateProp}>
             Professional Summary
           </SectionHeader>
-          <ItemDescription template={template}>
-            {resumeData.personal.summary}
-          </ItemDescription>
+          <SafeHTMLContent
+            html={resumeData.personal.summary}
+            $template={templateProp}
+          />
         </ResumeSection>
       )}
 
       {/* Experience */}
       {resumeData.experience.some((exp) => exp.company || exp.position) && (
-        <ResumeSection template={template}>
-          <SectionHeader template={template}>Work Experience</SectionHeader>
+        <ResumeSection $template={templateProp}>
+          <SectionHeader $template={templateProp}>
+            Work Experience
+          </SectionHeader>
 
           {resumeData.experience.map(
             (exp, index) =>
               (exp.company || exp.position) && (
                 <ExperienceItem key={index}>
                   <ExperienceHeader>
-                    <ItemTitle template={template}>
+                    <ItemTitle $template={templateProp}>
                       {exp.position || "Position"}
                     </ItemTitle>
                     <ItemDetails>
-                      <ItemSubtitle template={template}>
+                      <ItemSubtitle $template={templateProp}>
                         {exp.company || "Company"}
                       </ItemSubtitle>
-                      <ItemDate template={template}>
+                      <ItemDate $template={templateProp}>
                         {exp.startDate || "Start Date"} -{" "}
                         {exp.isCurrentPosition
                           ? "Present"
@@ -461,9 +457,10 @@ const ResumeContent: React.FC<ResumeContentProps> = ({
                     </ItemDetails>
                   </ExperienceHeader>
                   {exp.description && (
-                    <ItemDescription template={template}>
-                      {exp.description}
-                    </ItemDescription>
+                    <SafeHTMLContent
+                      html={exp.description}
+                      $template={templateProp}
+                    />
                   )}
                 </ExperienceItem>
               )
@@ -473,24 +470,24 @@ const ResumeContent: React.FC<ResumeContentProps> = ({
 
       {/* Education */}
       {resumeData.education.some((edu) => edu.institution || edu.degree) && (
-        <ResumeSection template={template}>
-          <SectionHeader template={template}>Education</SectionHeader>
+        <ResumeSection $template={templateProp}>
+          <SectionHeader $template={templateProp}>Education</SectionHeader>
 
           {resumeData.education.map(
             (edu, index) =>
               (edu.institution || edu.degree) && (
                 <ExperienceItem key={index}>
                   <ExperienceHeader>
-                    <ItemTitle template={template}>
+                    <ItemTitle $template={templateProp}>
                       {edu.institution || "Institution"}
                     </ItemTitle>
                     <ItemDetails>
-                      <ItemSubtitle template={template}>
+                      <ItemSubtitle $template={templateProp}>
                         {edu.degree || "Degree"}
                         {edu.field ? ` in ${edu.field}` : ""}
                         {edu.gpa ? ` - GPA: ${edu.gpa}` : ""}
                       </ItemSubtitle>
-                      <ItemDate template={template}>
+                      <ItemDate $template={templateProp}>
                         {edu.graduationDate || "Graduation Date"}
                       </ItemDate>
                     </ItemDetails>
@@ -503,11 +500,11 @@ const ResumeContent: React.FC<ResumeContentProps> = ({
 
       {/* Skills */}
       {resumeData.skills.length > 0 && (
-        <ResumeSection template={template}>
-          <SectionHeader template={template}>Skills</SectionHeader>
-          <SkillsContainer template={template}>
+        <ResumeSection $template={templateProp}>
+          <SectionHeader $template={templateProp}>Skills</SectionHeader>
+          <SkillsContainer $template={templateProp}>
             {resumeData.skills.map((skill, index) => (
-              <SkillItem key={index} template={template}>
+              <SkillItem key={index} $template={templateProp}>
                 {skill}
               </SkillItem>
             ))}

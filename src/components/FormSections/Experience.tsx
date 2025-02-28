@@ -1,19 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { ExperienceItem } from "../../types/resume";
-import {
-  FormGroup,
-  Label,
-  Input,
-  Textarea,
-  Checkbox,
-  Button,
-  Grid,
-} from "../Common";
+import { FormGroup, Label, Input, Checkbox, Button, Grid } from "../Common";
+import TemplateAwareRichTextEditor from "../Common/TemplateAwareRichTextEditor";
 
 interface ExperienceProps {
   experienceData: ExperienceItem[];
   setExperienceData: (data: ExperienceItem[]) => void;
+  useTemplateStyles?: boolean;
 }
 
 const ExperienceItemWrapper = styled.div`
@@ -70,6 +64,7 @@ const RemoveButton = styled.button`
 const Experience: React.FC<ExperienceProps> = ({
   experienceData,
   setExperienceData,
+  useTemplateStyles = false,
 }) => {
   const handleExperienceChange = (
     index: number,
@@ -91,6 +86,18 @@ const Experience: React.FC<ExperienceProps> = ({
 
     setExperienceData(updatedExperience);
   };
+
+  const handleRichTextChange =
+    (index: number, field: keyof ExperienceItem) =>
+    (value: string): void => {
+      const updatedExperience = [...experienceData];
+      updatedExperience[index] = {
+        ...updatedExperience[index],
+        [field]: value,
+      };
+
+      setExperienceData(updatedExperience);
+    };
 
   const addExperience = (): void => {
     setExperienceData([
@@ -150,7 +157,7 @@ const Experience: React.FC<ExperienceProps> = ({
             />
           </FormGroup>
 
-          <Grid cols={1} gap={4}>
+          <Grid cols={1} $gap={4}>
             <FormGroup>
               <Label>Start Date</Label>
               <Input
@@ -185,19 +192,20 @@ const Experience: React.FC<ExperienceProps> = ({
 
           <FormGroup>
             <Label>Description</Label>
-            <Textarea
-              name="description"
+            <TemplateAwareRichTextEditor
               value={exp.description}
-              onChange={(e) => handleExperienceChange(index, e)}
-              rows={4}
+              onChange={handleRichTextChange(index, "description")}
               placeholder="• Led development of a new feature that increased user engagement by 25%
 • Managed a team of 5 developers"
+              minHeight="150px"
+              contentType="jobDescription"
+              useTemplateDefaults={useTemplateStyles}
             />
           </FormGroup>
         </ExperienceItemWrapper>
       ))}
 
-      <AddButton onClick={addExperience} variant="primary">
+      <AddButton onClick={addExperience} $variant="primary">
         Add Experience
       </AddButton>
     </div>

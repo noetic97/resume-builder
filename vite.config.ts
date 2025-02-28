@@ -10,4 +10,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    sourcemap: true,
+  },
+  optimizeDeps: {
+    include: ["react", "react-dom"],
+    esbuildOptions: {
+      sourcemap: true,
+    },
+  },
 });

@@ -6,7 +6,7 @@ export interface PersonalInfo {
   email: string;
   phone: string;
   location: string;
-  summary: string;
+  summary: string; // HTML content
 }
 
 export interface ExperienceItem {
@@ -14,7 +14,7 @@ export interface ExperienceItem {
   position: string;
   startDate: string;
   endDate: string;
-  description: string;
+  description: string; // HTML content
   isCurrentPosition: boolean;
 }
 

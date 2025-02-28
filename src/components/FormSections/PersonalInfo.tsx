@@ -1,15 +1,18 @@
 import React from "react";
 import { PersonalInfo as PersonalInfoType } from "../../types/resume";
-import { FormGroup, Label, Input, Textarea, Grid } from "../Common";
+import { FormGroup, Label, Input, Grid } from "../Common";
+import TemplateAwareRichTextEditor from "../Common/TemplateAwareRichTextEditor";
 
 interface PersonalInfoProps {
   personalData: PersonalInfoType;
   setPersonalData: (data: PersonalInfoType) => void;
+  useTemplateStyles?: boolean;
 }
 
 const PersonalInfo: React.FC<PersonalInfoProps> = ({
   personalData,
   setPersonalData,
+  useTemplateStyles = false,
 }) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -20,6 +23,15 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
       [name]: value,
     });
   };
+
+  const handleRichTextChange =
+    (field: keyof PersonalInfoType) =>
+    (value: string): void => {
+      setPersonalData({
+        ...personalData,
+        [field]: value,
+      });
+    };
 
   return (
     <div>
@@ -45,7 +57,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
         />
       </FormGroup>
 
-      <Grid cols={1} gap={4}>
+      <Grid cols={1} $gap={4}>
         <FormGroup>
           <Label>Email</Label>
           <Input
@@ -81,12 +93,13 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
 
       <FormGroup>
         <Label>Professional Summary</Label>
-        <Textarea
-          name="summary"
+        <TemplateAwareRichTextEditor
           value={personalData.summary}
-          onChange={handleChange}
-          rows={4}
+          onChange={handleRichTextChange("summary")}
           placeholder="Experienced software engineer with a passion for developing innovative solutions..."
+          minHeight="120px"
+          contentType="summary"
+          useTemplateDefaults={useTemplateStyles}
         />
       </FormGroup>
     </div>

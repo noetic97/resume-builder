@@ -21,7 +21,7 @@ const ButtonsContainer = styled.div`
 `;
 
 interface SizeBtnProps {
-  isSelected: boolean;
+  $isSelected: boolean;
 }
 
 const SizeButton = styled.button<SizeBtnProps>`
@@ -29,11 +29,11 @@ const SizeButton = styled.button<SizeBtnProps>`
   border-radius: ${(props) => props.theme.borderRadius.md};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   background-color: ${(props) =>
-    props.isSelected
+    props.$isSelected
       ? props.theme.colors.primary.main
       : props.theme.colors.gray[100]};
   color: ${(props) =>
-    props.isSelected
+    props.$isSelected
       ? props.theme.colors.primary.contrastText
       : props.theme.colors.gray[800]};
   border: none;
@@ -42,7 +42,7 @@ const SizeButton = styled.button<SizeBtnProps>`
 
   &:hover {
     background-color: ${(props) =>
-      props.isSelected
+      props.$isSelected
         ? props.theme.colors.primary.main
         : props.theme.colors.gray[200]};
   }
@@ -59,21 +59,21 @@ const MarginSizeSelector: React.FC<MarginSizeSelectorProps> = ({
         <SizeButton
           type="button"
           onClick={() => onChange("small")}
-          isSelected={selectedMarginSize === "small"}
+          $isSelected={selectedMarginSize === "small"}
         >
           Small
         </SizeButton>
         <SizeButton
           type="button"
           onClick={() => onChange("medium")}
-          isSelected={selectedMarginSize === "medium"}
+          $isSelected={selectedMarginSize === "medium"}
         >
           Medium
         </SizeButton>
         <SizeButton
           type="button"
           onClick={() => onChange("large")}
-          isSelected={selectedMarginSize === "large"}
+          $isSelected={selectedMarginSize === "large"}
         >
           Large
         </SizeButton>

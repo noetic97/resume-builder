@@ -106,7 +106,7 @@ export const Checkbox = styled.input.attrs({ type: "checkbox" })`
 
 // Button components
 interface ButtonProps {
-  variant?: "primary" | "secondary" | "error" | "success" | "warning";
+  $variant?: "primary" | "secondary" | "error" | "success" | "warning";
 }
 
 export const Button = styled.button<ButtonProps>`
@@ -121,7 +121,7 @@ export const Button = styled.button<ButtonProps>`
   transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 
   background-color: ${(props) => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case "secondary":
         return props.theme.colors.secondary.main;
       case "error":
@@ -136,7 +136,7 @@ export const Button = styled.button<ButtonProps>`
   }};
 
   color: ${(props) => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case "warning":
         return props.theme.colors.warning.contrastText;
       case "secondary":
@@ -154,7 +154,7 @@ export const Button = styled.button<ButtonProps>`
 
   &:hover {
     background-color: ${(props) => {
-      switch (props.variant) {
+      switch (props.$variant) {
         case "secondary":
           return props.theme.colors.secondary.dark;
         case "error":
@@ -192,10 +192,10 @@ export const Flex = styled.div`
   display: flex;
 `;
 
-export const Grid = styled.div<{ cols?: number; gap?: number }>`
+export const Grid = styled.div<{ cols?: number; $gap?: number }>`
   display: grid;
   grid-template-columns: repeat(${(props) => props.cols || 1}, 1fr);
-  gap: ${(props) => props.theme.spacing(props.gap || 4)};
+  gap: ${(props) => props.theme.spacing(props.$gap || 4)};
 `;
 
 export const Row = styled.div`

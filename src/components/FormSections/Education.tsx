@@ -112,7 +112,7 @@ const Education: React.FC<EducationProps> = ({
             />
           </FormGroup>
 
-          <Grid cols={1} gap={4}>
+          <Grid cols={1} $gap={4}>
             <FormGroup>
               <Label>Degree</Label>
               <Input
@@ -136,7 +136,7 @@ const Education: React.FC<EducationProps> = ({
             </FormGroup>
           </Grid>
 
-          <Grid cols={1} gap={4}>
+          <Grid cols={1} $gap={4}>
             <FormGroup>
               <Label>Graduation Date</Label>
               <Input
@@ -162,7 +162,7 @@ const Education: React.FC<EducationProps> = ({
         </EducationItemWrapper>
       ))}
 
-      <AddButton onClick={addEducation} variant="primary">
+      <AddButton onClick={addEducation} $variant="primary">
         Add Education
       </AddButton>
     </div>

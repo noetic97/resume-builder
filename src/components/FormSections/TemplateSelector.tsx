@@ -36,7 +36,7 @@ const CarouselTrack = styled.div`
 `;
 
 interface TemplateCardProps {
-  isSelected: boolean;
+  $isSelected: boolean;
 }
 
 const TemplateCard = styled.div<TemplateCardProps>`
@@ -45,7 +45,7 @@ const TemplateCard = styled.div<TemplateCardProps>`
   min-width: 220px;
   border: 1px solid
     ${(props) =>
-      props.isSelected
+      props.$isSelected
         ? props.theme.colors.primary.main
         : props.theme.colors.gray[200]};
   border-radius: ${(props) => props.theme.borderRadius.md};
@@ -53,26 +53,26 @@ const TemplateCard = styled.div<TemplateCardProps>`
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   background-color: ${(props) =>
-    props.isSelected ? props.theme.colors.blue[50] : "transparent"};
+    props.$isSelected ? props.theme.colors.blue[50] : "transparent"};
   margin-right: 1rem;
 
   ${(props) =>
-    props.isSelected &&
+    props.$isSelected &&
     `
     box-shadow: 0 0 0 2px ${props.theme.colors.blue[200]};
   `}
 
   &:hover {
     border-color: ${(props) =>
-      props.isSelected
+      props.$isSelected
         ? props.theme.colors.primary.main
         : props.theme.colors.blue[300]};
     background-color: ${(props) =>
-      props.isSelected
+      props.$isSelected
         ? props.theme.colors.blue[50]
         : props.theme.colors.blue[50]};
     box-shadow: ${(props) =>
-      props.isSelected
+      props.$isSelected
         ? `0 0 0 2px ${props.theme.colors.blue[200]}`
         : props.theme.shadows.md};
   }
@@ -174,12 +174,12 @@ const ScrollIndicator = styled.div`
   margin-top: 1rem;
 `;
 
-const ScrollDot = styled.button<{ isActive: boolean }>`
+const ScrollDot = styled.button<{ $isActive: boolean }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background-color: ${(props) =>
-    props.isActive
+    props.$isActive
       ? props.theme.colors.primary.main
       : props.theme.colors.gray[300]};
   margin: 0 4px;
@@ -190,7 +190,7 @@ const ScrollDot = styled.button<{ isActive: boolean }>`
 
   &:hover {
     background-color: ${(props) =>
-      props.isActive
+      props.$isActive
         ? props.theme.colors.primary.dark
         : props.theme.colors.gray[400]};
   }
@@ -255,7 +255,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           {TEMPLATES_LIST.map((template) => (
             <TemplateCard
               key={template.id}
-              isSelected={selectedTemplate === template.id}
+              $isSelected={selectedTemplate === template.id}
               onClick={() => onSelectTemplate(template.id)}
             >
               <TemplateCardHeader>
@@ -288,7 +288,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           {Array.from({ length: totalDots }).map((_, index) => (
             <ScrollDot
               key={index}
-              isActive={index === activeDot}
+              $isActive={index === activeDot}
               onClick={() => scrollToDot(index)}
               aria-label={`Go to template group ${index + 1}`}
             />

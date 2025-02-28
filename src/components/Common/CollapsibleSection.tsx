@@ -36,25 +36,25 @@ const SectionTitle = styled.h2`
   margin: 0;
 `;
 
-const ToggleIcon = styled.span<{ isExpanded: boolean }>`
+const ToggleIcon = styled.span<{ $isExpanded: boolean }>`
   font-size: 1.25rem;
   transition: transform 0.3s ease;
-  transform: ${(props) => (props.isExpanded ? "rotate(180deg)" : "rotate(0)")};
+  transform: ${(props) => (props.$isExpanded ? "rotate(180deg)" : "rotate(0)")};
   display: inline-block;
   color: ${(props) => props.theme.colors.text.secondary};
 `;
 
 interface ContentProps {
-  isExpanded: boolean;
+  $isExpanded: boolean;
 }
 
 const Content = styled.div<ContentProps>`
-  padding: ${(props) => (props.isExpanded ? "1.5rem" : "0")};
-  max-height: ${(props) => (props.isExpanded ? "10000px" : "0")};
+  padding: ${(props) => (props.$isExpanded ? "1.5rem" : "0")};
+  max-height: ${(props) => (props.$isExpanded ? "10000px" : "0")};
   overflow: hidden;
   transition: max-height 0.5s ease, padding 0.3s ease;
   border-top: ${(props) =>
-    props.isExpanded ? `1px solid ${props.theme.colors.divider}` : "none"};
+    props.$isExpanded ? `1px solid ${props.theme.colors.divider}` : "none"};
 `;
 
 const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
@@ -72,9 +72,9 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
     <SectionContainer>
       <SectionHeader onClick={toggleExpanded}>
         <SectionTitle>{title}</SectionTitle>
-        <ToggleIcon isExpanded={isExpanded}>▼</ToggleIcon>
+        <ToggleIcon $isExpanded={isExpanded}>▼</ToggleIcon>
       </SectionHeader>
-      <Content isExpanded={isExpanded}>{children}</Content>
+      <Content $isExpanded={isExpanded}>{children}</Content>
     </SectionContainer>
   );
 };
