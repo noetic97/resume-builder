@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import PersonalInfo from "./FormSections/PersonalInfo";
 import Experience from "./FormSections/Experience";
@@ -16,7 +16,7 @@ import {
   loadResumeState,
   clearAllData,
 } from "../utils/storageService";
-import { Container, Heading1, Text, Button, Row, Col, Spacer } from "./Common";
+import { Container, Heading1, Text, Button, Spacer } from "./Common";
 import CollapsibleSection from "./Common/CollapsibleSection";
 import { TemplateStyleProvider } from "./Common/TemplateStyleManager";
 
@@ -249,7 +249,7 @@ const ResumeBuilder: React.FC = () => {
           logging: false,
           backgroundColor: "#ffffff",
           // Capture just the page content, not the page number
-          onclone: (document, element) => {
+          onclone: (_document, element) => {
             const clonedElement = element as HTMLElement;
             // Remove page numbers from the clone before rendering
             const pageNumbers = clonedElement.querySelectorAll(".page-number");

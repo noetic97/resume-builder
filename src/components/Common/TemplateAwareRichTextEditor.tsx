@@ -21,16 +21,6 @@ interface RichTextEditorProps {
   useTemplateDefaults?: boolean;
 }
 
-interface FormatConfig {
-  fontFamily: string;
-  fontSize: string;
-  color: string;
-  alignment: string;
-  fontWeight: number;
-  underline?: boolean;
-  italics?: boolean;
-}
-
 // Styled components defined as before...
 const EditorContainer = styled.div`
   border: 1px solid ${(props) => props.theme.colors.divider};
@@ -277,7 +267,6 @@ const TemplateAwareRichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
   placeholder = "Start typing...",
   minHeight,
-  contentType = "summary",
   useTemplateDefaults = true,
 }) => {
   // Get template styles from context

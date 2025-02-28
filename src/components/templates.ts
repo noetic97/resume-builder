@@ -133,22 +133,22 @@ export interface EnhancedTemplateStyles extends StyledTemplateStyles {
 }
 
 // Default typography values for reference
-const defaultTypography: TemplateTypography = {
-  primaryFont: "Calibri, sans-serif",
-  secondaryFont: "Calibri, sans-serif",
-  baseFontSize: "12px",
-  headerFontSize: "18px",
-  subheaderFontSize: "14px",
-  bodyFontSize: "12px",
-  lineHeight: "1.5",
-  fontWeight: {
-    light: 300,
-    normal: 400,
-    medium: 500,
-    semibold: 600,
-    bold: 700,
-  },
-};
+// const defaultTypography: TemplateTypography = {
+//   primaryFont: "Calibri, sans-serif",
+//   secondaryFont: "Calibri, sans-serif",
+//   baseFontSize: "12px",
+//   headerFontSize: "18px",
+//   subheaderFontSize: "14px",
+//   bodyFontSize: "12px",
+//   lineHeight: "1.5",
+//   fontWeight: {
+//     light: 300,
+//     normal: 400,
+//     medium: 500,
+//     semibold: 600,
+//     bold: 700,
+//   },
+// };
 
 // Enhanced template definitions
 export const templateStyles: Record<TemplateId, EnhancedTemplateStyles> = {
