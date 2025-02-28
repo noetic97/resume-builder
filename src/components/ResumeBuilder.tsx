@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PersonalInfo from "./FormSections/PersonalInfo";
 import Experience from "./FormSections/Experience";
 import Education from "./FormSections/Education";
 import Skills from "./FormSections/Skills";
+import MarginSizeSelector from "./FormSections/MarginSizeSelectors";
 import DynamicScalingPreview from "./Preview/DynamicScalingPreview";
 import TemplateSelector from "./FormSections/TemplateSelector";
 import { DEFAULT_TEMPLATE } from "./templates";
@@ -14,6 +15,10 @@ import {
   loadResumeState,
   clearAllData,
 } from "../utils/storageService";
+
+// A4 paper dimensions constants
+const A4_WIDTH_MM = 210; // Width in mm
+const A4_HEIGHT_MM = 297; // Height in mm
 
 const ResumeBuilder: React.FC = () => {
   // Default resume data structure
@@ -55,6 +60,11 @@ const ResumeBuilder: React.FC = () => {
   const [lastEdited, setLastEdited] = useState<Date | null>(null);
   const [showLastEditedNotice, setShowLastEditedNotice] =
     useState<boolean>(false);
+  // State for tracking PDF export process and margin size
+  const [isPdfExporting, setIsPdfExporting] = useState<boolean>(false);
+  const [marginSize, setMarginSize] = useState<"small" | "medium" | "large">(
+    "small"
+  );
 
   // Load data from localStorage on initial load
   useEffect(() => {
@@ -99,68 +109,70 @@ const ResumeBuilder: React.FC = () => {
     }
   }, [resumeData, selectedTemplate]);
 
-  // Export PDF with multi-page support
+  // Improved PDF export with multi-page support
   const exportToPdf = async (): Promise<void> => {
-    // Check if we have multiple pages
-    const mainPreview = document.getElementById("resume-preview");
-    if (!mainPreview) return;
-
-    // Create PDF with A4 dimensions (portrait)
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-
-    // Function to add a page to the PDF
-    const addPageToPdf = async (
-      element: HTMLElement,
-      isFirstPage = false
-    ): Promise<void> => {
-      const canvas = await html2canvas(element, {
-        scale: 2, // Higher scale for better quality
-        useCORS: true,
-        logging: false,
-        // Ensure proper background colors
-        backgroundColor: "#ffffff",
+    setIsPdfExporting(true);
+    try {
+      // Create PDF with A4 dimensions
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      // Get all visible preview pages
+      const pages = document.querySelectorAll('[id^="resume-preview"]');
 
-      // If not the first page, add a new page to the PDF
-      if (!isFirstPage) {
-        pdf.addPage();
+      if (pages.length === 0) {
+        console.error("No preview pages found");
+        return;
       }
 
-      // Calculate proper scaling to fit the A4 page
-      const imgWidth = 210; // A4 width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // Process each page
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i] as HTMLElement;
 
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-    };
+        // Capture the page as an image
+        const canvas = await html2canvas(page, {
+          scale: 2, // Higher scale for better quality
+          useCORS: true,
+          logging: false,
+          backgroundColor: "#ffffff",
+          // Capture just the page content, not the page number
+          onclone: (document, element) => {
+            const clonedElement = element as HTMLElement;
+            // Remove page numbers from the clone before rendering
+            const pageNumbers = clonedElement.querySelectorAll(".page-number");
+            pageNumbers.forEach((el) => el.remove());
+          },
+        });
 
-    // Add first page
-    await addPageToPdf(mainPreview, true);
+        // Get the image data
+        const imgData = canvas.toDataURL("image/png");
 
-    // Check for additional pages
-    let pageIndex = 2;
-    let nextPage = document.getElementById(`resume-preview-page-${pageIndex}`);
+        // Add new page if not the first page
+        if (i > 0) {
+          pdf.addPage();
+        }
 
-    // Add each additional page
-    while (nextPage) {
-      await addPageToPdf(nextPage);
-      pageIndex++;
-      nextPage = document.getElementById(`resume-preview-page-${pageIndex}`);
+        // Add image to PDF - fill entire page
+        pdf.addImage(imgData, "PNG", 0, 0, A4_WIDTH_MM, A4_HEIGHT_MM);
+      }
+
+      // Generate filename
+      const filename = resumeData.personal.name
+        ? `resume_${resumeData.personal.name
+            .toLowerCase()
+            .replace(/\s+/g, "_")}.pdf`
+        : "resume.pdf";
+
+      // Save the PDF
+      pdf.save(filename);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      setIsPdfExporting(false);
     }
-
-    // Save the PDF
-    const filename = resumeData.personal.name
-      ? `resume_${resumeData.personal.name
-          .toLowerCase()
-          .replace(/\s+/g, "_")}.pdf`
-      : "resume.pdf";
-
-    pdf.save(filename);
   };
 
   // DOCX export function (simplified)
@@ -224,9 +236,14 @@ const ResumeBuilder: React.FC = () => {
           <div className="flex flex-wrap gap-2 mb-6">
             <button
               onClick={exportToPdf}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              disabled={isPdfExporting}
+              className={`px-4 py-2 bg-blue-600 text-white rounded ${
+                isPdfExporting
+                  ? "opacity-75 cursor-not-allowed"
+                  : "hover:bg-blue-700"
+              }`}
             >
-              Export to PDF
+              {isPdfExporting ? "Generating PDF..." : "Export to PDF"}
             </button>
             <button
               onClick={exportToDocx}
@@ -251,6 +268,11 @@ const ResumeBuilder: React.FC = () => {
           <TemplateSelector
             selectedTemplate={selectedTemplate}
             onSelectTemplate={setSelectedTemplate}
+          />
+
+          <MarginSizeSelector
+            selectedMarginSize={marginSize}
+            onChange={setMarginSize}
           />
 
           <PersonalInfo
@@ -287,6 +309,7 @@ const ResumeBuilder: React.FC = () => {
           <DynamicScalingPreview
             resumeData={resumeData}
             selectedTemplate={selectedTemplate}
+            marginSize={marginSize}
           />
         </div>
       </div>

@@ -3,13 +3,18 @@ import { templateStyles, DEFAULT_TEMPLATE } from "../templates";
 import { ResumeData, TemplateId, TemplateStyles } from "../../types/resume";
 
 // A4 paper dimensions constants
-const A4_WIDTH_MM = 210;
-const A4_HEIGHT_MM = 297;
-const PAGE_MARGIN_MM = 20;
+const A4_WIDTH_MM = 210; // Width in mm
+const A4_HEIGHT_MM = 297; // Height in mm
+const PAGE_MARGIN_MM = 10; // Margin in mm (reduced from 20 to 10)
+
+// Convert mm to px (96 dpi)
+const MM_TO_PX = 3.78; // Approximate conversion at 96 DPI
 
 interface DynamicScalingPreviewProps {
   resumeData: ResumeData;
   selectedTemplate?: TemplateId;
+  forExport?: boolean; // Prop to determine if this is for export (no page numbers)
+  marginSize?: "small" | "medium" | "large"; // Optional margin size setting
 }
 
 interface ResumeContentProps {
@@ -20,29 +25,55 @@ interface ResumeContentProps {
 const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
   resumeData,
   selectedTemplate = DEFAULT_TEMPLATE,
+  forExport = false,
+  marginSize = "small",
 }) => {
+  // Calculate margin based on marginSize
+  const getMarginMM = (): number => {
+    switch (marginSize) {
+      case "small":
+        return 10;
+      case "medium":
+        return 15;
+      case "large":
+        return 20;
+      default:
+        return 10;
+    }
+  };
+
+  const pageMarginMM = getMarginMM();
   const template =
     templateStyles[selectedTemplate] || templateStyles[DEFAULT_TEMPLATE];
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [pages, setPages] = useState<number[]>([0]); // Initially just the first page
-  const [scale, setScale] = useState<number>(1.5); // Default scale
+  const [scale, setScale] = useState<number>(1.0); // Default scale
+  const [contentHeight, setContentHeight] = useState<number>(0);
 
-  // Dynamically calculate the best scale based on container width
+  // Calculate the scale based on container width and window size
   useEffect(() => {
     const calculateScale = (): void => {
       if (containerRef.current) {
         // Get the available width (with some padding)
         const availableWidth = containerRef.current.clientWidth - 40;
+        const availableHeight = window.innerHeight * 0.7; // 70% of window height
 
-        // Calculate a scale that fits the available width (max 2.2, min 1.0)
-        const calculatedScale = Math.min(
-          2.2,
-          Math.max(1.0, availableWidth / A4_WIDTH_MM)
+        // Calculate scales for width and height
+        const widthScale = Math.min(
+          availableWidth / (A4_WIDTH_MM * MM_TO_PX),
+          1.0
+        );
+        const heightScale = Math.min(
+          availableHeight / (A4_HEIGHT_MM * MM_TO_PX),
+          1.0
         );
 
-        // Set the new scale
-        setScale(calculatedScale);
+        // Use the smaller of the two to maintain aspect ratio
+        const calculatedScale = Math.min(widthScale, heightScale);
+
+        // Set the new scale (minimum 0.3, maximum 1.0)
+        setScale(Math.max(0.3, Math.min(calculatedScale, 1.0)));
       }
     };
 
@@ -56,41 +87,92 @@ const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
     return () => window.removeEventListener("resize", calculateScale);
   }, []);
 
+  // Measure the content height
+  useEffect(() => {
+    const measureContentHeight = (): void => {
+      if (contentRef.current) {
+        // Force the content to be visible during measurement
+        const current = contentRef.current as HTMLElement;
+        const originalStyle = current.style.cssText;
+        current.style.position = "static";
+        current.style.visibility = "visible";
+        current.style.transform = "none";
+        current.style.maxWidth = "none";
+        current.style.width = `${
+          (A4_WIDTH_MM - pageMarginMM * 2) * MM_TO_PX
+        }px`;
+
+        // Get accurate height
+        setContentHeight(current.scrollHeight);
+
+        // Restore styles
+        current.style.cssText = originalStyle;
+      }
+    };
+
+    // Small delay to ensure content is rendered
+    const timer = setTimeout(measureContentHeight, 100);
+
+    // Set up a mutation observer to watch for content changes
+    const observer = new MutationObserver(measureContentHeight);
+
+    if (contentRef.current) {
+      observer.observe(contentRef.current, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+    }
+
+    // Measure again whenever window resizes
+    window.addEventListener("resize", measureContentHeight);
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      window.removeEventListener("resize", measureContentHeight);
+    };
+  }, [resumeData, selectedTemplate, pageMarginMM]);
+
   // Calculate page count based on content height
   useEffect(() => {
-    if (contentRef.current) {
-      // Get the content height
-      const height = contentRef.current.scrollHeight;
-
-      // Calculate max content height per page (accounting for margins)
-      const maxContentHeight =
-        A4_HEIGHT_MM * scale - PAGE_MARGIN_MM * 2 * scale;
+    if (contentHeight > 0) {
+      // Calculate max content height per page
+      const pageContentHeight =
+        A4_HEIGHT_MM * MM_TO_PX * scale - pageMarginMM * 2 * MM_TO_PX * scale;
 
       // Calculate how many pages we need
-      const pageCount = Math.max(1, Math.ceil(height / maxContentHeight));
+      const pageCount = Math.max(
+        1,
+        Math.ceil(contentHeight / (pageContentHeight / scale))
+      );
 
       // Create array of page starting positions
       const newPages = Array.from(
         { length: pageCount },
-        (_, i) => i * maxContentHeight
+        (_, i) => i * (pageContentHeight / scale)
       );
+
       setPages(newPages);
     }
-  }, [resumeData, selectedTemplate, scale]);
+  }, [contentHeight, scale, pageMarginMM]);
 
   return (
     <div className="sticky top-6 xl:pr-8" ref={containerRef}>
       <h2 className="text-xl font-semibold mb-4">Resume Preview</h2>
 
-      <div className="preview-container">
-        {/* Create a hidden div to measure content height */}
-        <div className="hidden">
+      <div className="preview-container overflow-auto">
+        {/* Hidden div to measure content height */}
+        <div
+          className="absolute top-0 left-0 opacity-0 pointer-events-none"
+          style={{ zIndex: -1000 }}
+        >
           <div
             ref={contentRef}
             style={{
-              width: `${A4_WIDTH_MM * scale - PAGE_MARGIN_MM * 2 * scale}px`,
-              position: "absolute",
-              visibility: "hidden",
+              width: `${
+                A4_WIDTH_MM * MM_TO_PX - PAGE_MARGIN_MM * 2 * MM_TO_PX
+              }px`,
             }}
           >
             <ResumeContent resumeData={resumeData} template={template} />
@@ -98,9 +180,9 @@ const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
         </div>
 
         {/* Wrapper for centering */}
-        <div className="preview-wrapper">
+        <div className="preview-wrapper mx-auto">
           {/* Render each page */}
-          {pages.map((startPosition, index) => (
+          {pages.map((_, index) => (
             <div
               key={index}
               id={
@@ -108,39 +190,42 @@ const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
                   ? "resume-preview"
                   : `resume-preview-page-${index + 1}`
               }
+              className="relative mb-6 last:mb-0 shadow-lg"
               style={{
-                width: `${A4_WIDTH_MM * scale}px`,
-                minHeight: `${A4_HEIGHT_MM * scale}px`,
-                padding: `${PAGE_MARGIN_MM * scale}px`,
+                width: `${A4_WIDTH_MM * MM_TO_PX * scale}px`,
+                height: `${A4_HEIGHT_MM * MM_TO_PX * scale}px`,
                 backgroundColor: "white",
-                boxShadow: "0 3px 10px rgba(0, 0, 0, 0.2)",
-                margin: "0 auto",
-                marginBottom: index < pages.length - 1 ? "20px" : "0",
-                position: "relative",
-                pageBreakAfter: "always",
               }}
-              className={`${index < pages.length - 1 ? "overflow" : ""}`}
             >
+              {/* Actual page content */}
               <div
-                className={`relative z-10 ${template.containerStyles.replace(
-                  /bg-\w+-\d+/g,
-                  ""
-                )}`}
+                className="absolute inset-0"
+                style={{
+                  padding: `${pageMarginMM * MM_TO_PX * scale}px`,
+                  overflow: "hidden",
+                }}
               >
-                {/* Clip the content to this page only */}
+                {/* Resume content with proper positioning for each page */}
                 <div
+                  className={`h-full overflow-hidden ${template.containerStyles.replace(
+                    /bg-\w+-\d+/g,
+                    ""
+                  )}`}
                   style={{
-                    height: `${
-                      A4_HEIGHT_MM * scale - PAGE_MARGIN_MM * 2 * scale
-                    }px`,
-                    overflow: "hidden",
+                    transformOrigin: "top left",
+                    transform: `scale(${scale})`,
+                    width: `${(A4_WIDTH_MM - pageMarginMM * 2) * MM_TO_PX}px`,
+                    height: `${(A4_HEIGHT_MM - pageMarginMM * 2) * MM_TO_PX}px`,
                     position: "relative",
                   }}
                 >
                   <div
                     style={{
                       position: "absolute",
-                      top: index === 0 ? "0" : `-${startPosition}px`,
+                      top: `-${
+                        index *
+                        (((A4_HEIGHT_MM - pageMarginMM * 2) * MM_TO_PX) / scale)
+                      }px`,
                       width: "100%",
                     }}
                   >
@@ -150,20 +235,14 @@ const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
                     />
                   </div>
                 </div>
+              </div>
 
-                {/* Page number indicator */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "5px",
-                    right: "10px",
-                    fontSize: "10px",
-                    color: "#aaa",
-                  }}
-                >
+              {/* Page number indicator (outside actual page content) */}
+              {!forExport && (
+                <div className="absolute bottom-[-20px] right-0 text-xs text-gray-500 page-number">
                   Page {index + 1} of {pages.length}
                 </div>
-              </div>
+              )}
             </div>
           ))}
         </div>
@@ -188,15 +267,21 @@ const ResumeContent: React.FC<ResumeContentProps> = ({
           {resumeData.personal.title || "Professional Title"}
         </p>
 
-        <div className="mt-2 flex flex-wrap justify-center gap-x-3 text-sm text-gray-600">
+        <div className="mt-2 flex flex-wrap justify-center gap-x-2 text-xs sm:text-sm text-gray-600">
           {resumeData.personal.email && (
-            <span>{resumeData.personal.email}</span>
+            <span className="whitespace-nowrap">
+              {resumeData.personal.email}
+            </span>
           )}
           {resumeData.personal.phone && (
-            <span>{resumeData.personal.phone}</span>
+            <span className="whitespace-nowrap">
+              {resumeData.personal.phone}
+            </span>
           )}
           {resumeData.personal.location && (
-            <span>{resumeData.personal.location}</span>
+            <span className="whitespace-nowrap">
+              {resumeData.personal.location}
+            </span>
           )}
         </div>
       </div>
@@ -218,20 +303,24 @@ const ResumeContent: React.FC<ResumeContentProps> = ({
             (exp, index) =>
               (exp.company || exp.position) && (
                 <div key={index} className="mb-4">
-                  <div className="flex justify-between items-baseline">
-                    <h3 className={template.itemTitleStyles}>
+                  <div className="w-full flex flex-col mb-1">
+                    <h3 className={`${template.itemTitleStyles}`}>
                       {exp.position || "Position"}
                     </h3>
-                    <span className={template.itemDateStyles}>
-                      {exp.startDate || "Start Date"} -{" "}
-                      {exp.isCurrentPosition
-                        ? "Present"
-                        : exp.endDate || "End Date"}
-                    </span>
+                    <div className="flex justify-between items-center">
+                      <span className={`${template.itemSubtitleStyles}`}>
+                        {exp.company || "Company"}
+                      </span>
+                      <span
+                        className={`${template.itemDateStyles} text-xs whitespace-nowrap`}
+                      >
+                        {exp.startDate || "Start Date"} -{" "}
+                        {exp.isCurrentPosition
+                          ? "Present"
+                          : exp.endDate || "End Date"}
+                      </span>
+                    </div>
                   </div>
-                  <p className={template.itemSubtitleStyles}>
-                    {exp.company || "Company"}
-                  </p>
                   {exp.description && (
                     <p
                       className={`${template.textStyles} mt-1 whitespace-pre-line`}
@@ -254,19 +343,23 @@ const ResumeContent: React.FC<ResumeContentProps> = ({
             (edu, index) =>
               (edu.institution || edu.degree) && (
                 <div key={index} className="mb-4">
-                  <div className="flex justify-between items-baseline">
-                    <h3 className={template.itemTitleStyles}>
+                  <div className="w-full flex flex-col mb-1">
+                    <h3 className={`${template.itemTitleStyles}`}>
                       {edu.institution || "Institution"}
                     </h3>
-                    <span className={template.itemDateStyles}>
-                      {edu.graduationDate || "Graduation Date"}
-                    </span>
+                    <div className="flex justify-between items-center">
+                      <span className={`${template.itemSubtitleStyles}`}>
+                        {edu.degree || "Degree"}
+                        {edu.field ? ` in ${edu.field}` : ""}
+                        {edu.gpa ? ` - GPA: ${edu.gpa}` : ""}
+                      </span>
+                      <span
+                        className={`${template.itemDateStyles} text-xs whitespace-nowrap`}
+                      >
+                        {edu.graduationDate || "Graduation Date"}
+                      </span>
+                    </div>
                   </div>
-                  <p className={template.itemSubtitleStyles}>
-                    {edu.degree || "Degree"}
-                    {edu.field ? ` in ${edu.field}` : ""}
-                    {edu.gpa ? ` - GPA: ${edu.gpa}` : ""}
-                  </p>
                 </div>
               )
           )}
