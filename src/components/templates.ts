@@ -1,14 +1,16 @@
-// src/components/templates.js
+// src/components/templates.ts
+import { TemplateId, TemplateStyles, TemplateInfo } from "../types/resume";
+
 const TEMPLATES = {
-  CLASSIC: "classic",
-  MODERN: "modern",
-  MINIMAL: "minimal",
-  PROFESSIONAL: "professional",
-  CREATIVE: "creative",
+  CLASSIC: "classic" as TemplateId,
+  MODERN: "modern" as TemplateId,
+  MINIMAL: "minimal" as TemplateId,
+  PROFESSIONAL: "professional" as TemplateId,
+  CREATIVE: "creative" as TemplateId,
 };
 
 // Template definitions with their styling properties
-export const templateStyles = {
+export const templateStyles: Record<TemplateId, TemplateStyles> = {
   [TEMPLATES.CLASSIC]: {
     id: TEMPLATES.CLASSIC,
     name: "Classic",
@@ -115,10 +117,12 @@ export const templateStyles = {
 export const DEFAULT_TEMPLATE = TEMPLATES.CLASSIC;
 
 // Export templates object for use in selectors
-export const TEMPLATES_LIST = Object.values(templateStyles).map((template) => ({
-  id: template.id,
-  name: template.name,
-  description: template.description,
-}));
+export const TEMPLATES_LIST: TemplateInfo[] = Object.values(templateStyles).map(
+  (template) => ({
+    id: template.id,
+    name: template.name,
+    description: template.description,
+  })
+);
 
 export default TEMPLATES;

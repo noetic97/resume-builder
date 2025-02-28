@@ -1,8 +1,15 @@
 import React from "react";
 import { templateStyles } from "../templates";
+import { TemplateId } from "../../types/resume";
+
+interface TemplatePreviewCardProps {
+  templateId: TemplateId;
+}
 
 // A miniature preview of how the resume template will look
-const TemplatePreviewCard = ({ templateId }) => {
+const TemplatePreviewCard: React.FC<TemplatePreviewCardProps> = ({
+  templateId,
+}) => {
   const template = templateStyles[templateId];
 
   // Basic sample data for preview

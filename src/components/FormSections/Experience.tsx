@@ -1,8 +1,20 @@
 import React from "react";
+import { ExperienceItem } from "../../types/resume";
 
-const Experience = ({ experienceData, setExperienceData }) => {
-  const handleExperienceChange = (index, e) => {
-    const { name, value, type, checked } = e.target;
+interface ExperienceProps {
+  experienceData: ExperienceItem[];
+  setExperienceData: (data: ExperienceItem[]) => void;
+}
+
+const Experience: React.FC<ExperienceProps> = ({
+  experienceData,
+  setExperienceData,
+}) => {
+  const handleExperienceChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ): void => {
+    const { name, value, type, checked } = e.target as HTMLInputElement;
     const newValue = type === "checkbox" ? checked : value;
 
     const updatedExperience = [...experienceData];
@@ -19,7 +31,7 @@ const Experience = ({ experienceData, setExperienceData }) => {
     setExperienceData(updatedExperience);
   };
 
-  const addExperience = () => {
+  const addExperience = (): void => {
     setExperienceData([
       ...experienceData,
       {
@@ -33,7 +45,7 @@ const Experience = ({ experienceData, setExperienceData }) => {
     ]);
   };
 
-  const removeExperience = (index) => {
+  const removeExperience = (index: number): void => {
     const updatedExperience = [...experienceData];
     updatedExperience.splice(index, 1);
     setExperienceData(updatedExperience);
@@ -140,7 +152,7 @@ const Experience = ({ experienceData, setExperienceData }) => {
                 name="description"
                 value={exp.description}
                 onChange={(e) => handleExperienceChange(index, e)}
-                rows="4"
+                rows={4}
                 className="mt-1 p-2 w-full border rounded-md"
                 placeholder="• Led development of a new feature that increased user engagement by 25%
 • Managed a team of 5 developers"

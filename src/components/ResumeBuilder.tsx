@@ -8,10 +8,16 @@ import TemplateSelector from "./FormSections/TemplateSelector";
 import { DEFAULT_TEMPLATE } from "./templates";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { ResumeData, TemplateId } from "../types/resume";
+import {
+  saveResumeState,
+  loadResumeState,
+  clearAllData,
+} from "../utils/storageService";
 
-const ResumeBuilder = () => {
+const ResumeBuilder: React.FC = () => {
   // Default resume data structure
-  const defaultResumeData = {
+  const defaultResumeData: ResumeData = {
     personal: {
       name: "",
       title: "",
@@ -43,35 +49,35 @@ const ResumeBuilder = () => {
   };
 
   // State for resume data and selected template
-  const [resumeData, setResumeData] = useState(defaultResumeData);
-  const [selectedTemplate, setSelectedTemplate] = useState(DEFAULT_TEMPLATE);
-  const [lastEdited, setLastEdited] = useState(null);
-  const [showLastEditedNotice, setShowLastEditedNotice] = useState(false);
+  const [resumeData, setResumeData] = useState<ResumeData>(defaultResumeData);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<TemplateId>(DEFAULT_TEMPLATE);
+  const [lastEdited, setLastEdited] = useState<Date | null>(null);
+  const [showLastEditedNotice, setShowLastEditedNotice] =
+    useState<boolean>(false);
 
   // Load data from localStorage on initial load
   useEffect(() => {
-    const savedData = localStorage.getItem("resumeData");
-    const savedTemplate = localStorage.getItem("selectedTemplate");
-    const lastEditedTime = localStorage.getItem("lastEdited");
+    const {
+      resumeData: savedData,
+      selectedTemplate: savedTemplate,
+      lastEdited: lastEditedTime,
+    } = loadResumeState(defaultResumeData, DEFAULT_TEMPLATE);
 
     if (savedData) {
-      try {
-        setResumeData(JSON.parse(savedData));
+      setResumeData(savedData);
 
-        if (lastEditedTime) {
-          const editTime = new Date(JSON.parse(lastEditedTime));
-          setLastEdited(editTime);
-          setShowLastEditedNotice(true);
+      if (lastEditedTime) {
+        const editTime = new Date(lastEditedTime);
+        setLastEdited(editTime);
+        setShowLastEditedNotice(true);
 
-          // Hide the notice after 5 seconds
-          const timer = setTimeout(() => {
-            setShowLastEditedNotice(false);
-          }, 5000);
+        // Hide the notice after 5 seconds
+        const timer = setTimeout(() => {
+          setShowLastEditedNotice(false);
+        }, 5000);
 
-          return () => clearTimeout(timer);
-        }
-      } catch (e) {
-        console.error("Error parsing saved resume data", e);
+        return () => clearTimeout(timer);
       }
     }
 
@@ -88,16 +94,13 @@ const ResumeBuilder = () => {
       selectedTemplate === DEFAULT_TEMPLATE;
 
     if (!isInitialRender) {
-      const now = new Date();
-      localStorage.setItem("resumeData", JSON.stringify(resumeData));
-      localStorage.setItem("selectedTemplate", selectedTemplate);
-      localStorage.setItem("lastEdited", JSON.stringify(now));
-      setLastEdited(now);
+      saveResumeState(resumeData, selectedTemplate);
+      setLastEdited(new Date());
     }
   }, [resumeData, selectedTemplate]);
 
   // Export PDF with multi-page support
-  const exportToPdf = async () => {
+  const exportToPdf = async (): Promise<void> => {
     // Check if we have multiple pages
     const mainPreview = document.getElementById("resume-preview");
     if (!mainPreview) return;
@@ -110,7 +113,10 @@ const ResumeBuilder = () => {
     });
 
     // Function to add a page to the PDF
-    const addPageToPdf = async (element, isFirstPage = false) => {
+    const addPageToPdf = async (
+      element: HTMLElement,
+      isFirstPage = false
+    ): Promise<void> => {
       const canvas = await html2canvas(element, {
         scale: 2, // Higher scale for better quality
         useCORS: true,
@@ -158,13 +164,13 @@ const ResumeBuilder = () => {
   };
 
   // DOCX export function (simplified)
-  const exportToDocx = () => {
+  const exportToDocx = (): void => {
     alert("DOCX export coming soon!");
     // In a real implementation, you'd generate a DOCX file here
   };
 
   // Reset form
-  const resetForm = () => {
+  const resetForm = (): void => {
     if (
       window.confirm(
         "Are you sure you want to reset the form? All your data will be lost."
@@ -172,18 +178,17 @@ const ResumeBuilder = () => {
     ) {
       setResumeData(defaultResumeData);
       setSelectedTemplate(DEFAULT_TEMPLATE);
-      localStorage.removeItem("resumeData");
-      localStorage.removeItem("selectedTemplate");
-      localStorage.removeItem("lastEdited");
+      clearAllData();
+      setLastEdited(null);
     }
   };
 
   // Format last edited time for display
-  const formatLastEdited = (date) => {
+  const formatLastEdited = (date: Date | null): string => {
     if (!date) return "";
 
     const now = new Date();
-    const diffMs = now - date;
+    const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
 
     if (diffMins < 1) return "Just now";

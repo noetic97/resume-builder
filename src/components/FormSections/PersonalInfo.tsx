@@ -1,7 +1,18 @@
 import React from "react";
+import { PersonalInfo as PersonalInfoType } from "../../types/resume";
 
-const PersonalInfo = ({ personalData, setPersonalData }) => {
-  const handleChange = (e) => {
+interface PersonalInfoProps {
+  personalData: PersonalInfoType;
+  setPersonalData: (data: PersonalInfoType) => void;
+}
+
+const PersonalInfo: React.FC<PersonalInfoProps> = ({
+  personalData,
+  setPersonalData,
+}) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ): void => {
     const { name, value } = e.target;
     setPersonalData({
       ...personalData,
@@ -92,7 +103,7 @@ const PersonalInfo = ({ personalData, setPersonalData }) => {
             name="summary"
             value={personalData.summary}
             onChange={handleChange}
-            rows="4"
+            rows={4}
             className="mt-1 p-2 w-full border rounded-md"
             placeholder="Experienced software engineer with a passion for developing innovative solutions..."
           />

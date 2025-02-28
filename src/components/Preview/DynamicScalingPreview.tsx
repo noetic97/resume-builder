@@ -1,25 +1,36 @@
 import React, { useRef, useEffect, useState } from "react";
 import { templateStyles, DEFAULT_TEMPLATE } from "../templates";
+import { ResumeData, TemplateId, TemplateStyles } from "../../types/resume";
 
 // A4 paper dimensions constants
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
 const PAGE_MARGIN_MM = 20;
 
-const DynamicScalingPreview = ({
+interface DynamicScalingPreviewProps {
+  resumeData: ResumeData;
+  selectedTemplate?: TemplateId;
+}
+
+interface ResumeContentProps {
+  resumeData: ResumeData;
+  template: TemplateStyles;
+}
+
+const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
   resumeData,
   selectedTemplate = DEFAULT_TEMPLATE,
 }) => {
   const template =
     templateStyles[selectedTemplate] || templateStyles[DEFAULT_TEMPLATE];
-  const contentRef = useRef(null);
-  const containerRef = useRef(null);
-  const [pages, setPages] = useState([0]); // Initially just the first page
-  const [scale, setScale] = useState(1.5); // Default scale
+  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [pages, setPages] = useState<number[]>([0]); // Initially just the first page
+  const [scale, setScale] = useState<number>(1.5); // Default scale
 
   // Dynamically calculate the best scale based on container width
   useEffect(() => {
-    const calculateScale = () => {
+    const calculateScale = (): void => {
       if (containerRef.current) {
         // Get the available width (with some padding)
         const availableWidth = containerRef.current.clientWidth - 40;
@@ -162,7 +173,10 @@ const DynamicScalingPreview = ({
 };
 
 // Separate component for the actual resume content
-const ResumeContent = ({ resumeData, template }) => {
+const ResumeContent: React.FC<ResumeContentProps> = ({
+  resumeData,
+  template,
+}) => {
   return (
     <>
       {/* Header/Personal Info */}

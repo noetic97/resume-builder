@@ -2,24 +2,27 @@
  * Storage service for handling local storage operations
  * This centralizes all storage logic and provides error handling
  */
+import { ResumeData, TemplateId } from "../types/resume";
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   RESUME_DATA: "resumeData",
   SELECTED_TEMPLATE: "selectedTemplate",
   LAST_EDITED: "lastEdited",
   VERSION: "resumeBuilderVersion",
-};
+} as const;
+
+type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 
 // Current data version - increment this when the data structure changes
 const CURRENT_VERSION = "1.0";
 
 /**
  * Save data to local storage
- * @param {string} key - Storage key
- * @param {any} data - Data to store
+ * @param {StorageKey} key - Storage key
+ * @param {T} data - Data to store
  * @returns {boolean} - Success status
  */
-const saveData = (key, data) => {
+export const saveData = <T>(key: StorageKey, data: T): boolean => {
   try {
     const serializedData = JSON.stringify(data);
     localStorage.setItem(key, serializedData);
@@ -32,15 +35,18 @@ const saveData = (key, data) => {
 
 /**
  * Load data from local storage
- * @param {string} key - Storage key
- * @param {any} defaultValue - Default value if data doesn't exist
- * @returns {any} - Retrieved data or default value
+ * @param {StorageKey} key - Storage key
+ * @param {T | null} defaultValue - Default value if data doesn't exist
+ * @returns {T | null} - Retrieved data or default value
  */
-const loadData = (key, defaultValue = null) => {
+export const loadData = <T>(
+  key: StorageKey,
+  defaultValue: T | null = null
+): T | null => {
   try {
     const serializedData = localStorage.getItem(key);
     if (serializedData === null) return defaultValue;
-    return JSON.parse(serializedData);
+    return JSON.parse(serializedData) as T;
   } catch (error) {
     console.error(`Error loading data from localStorage (${key}):`, error);
     return defaultValue;
@@ -49,10 +55,10 @@ const loadData = (key, defaultValue = null) => {
 
 /**
  * Remove data from local storage
- * @param {string} key - Storage key
+ * @param {StorageKey} key - Storage key
  * @returns {boolean} - Success status
  */
-const removeData = (key) => {
+export const removeData = (key: StorageKey): boolean => {
   try {
     localStorage.removeItem(key);
     return true;
@@ -62,12 +68,21 @@ const removeData = (key) => {
   }
 };
 
+interface ResumeState {
+  resumeData: ResumeData;
+  selectedTemplate: TemplateId;
+  lastEdited: string | null;
+}
+
 /**
  * Save the complete resume state
- * @param {object} resumeData - Resume data object
- * @param {string} selectedTemplate - Selected template ID
+ * @param {ResumeData} resumeData - Resume data object
+ * @param {TemplateId} selectedTemplate - Selected template ID
  */
-const saveResumeState = (resumeData, selectedTemplate) => {
+export const saveResumeState = (
+  resumeData: ResumeData,
+  selectedTemplate: TemplateId
+): void => {
   saveData(STORAGE_KEYS.RESUME_DATA, resumeData);
   saveData(STORAGE_KEYS.SELECTED_TEMPLATE, selectedTemplate);
   saveData(STORAGE_KEYS.LAST_EDITED, new Date().toISOString());
@@ -76,12 +91,15 @@ const saveResumeState = (resumeData, selectedTemplate) => {
 
 /**
  * Load the complete resume state
- * @param {object} defaultResumeData - Default resume data
- * @param {string} defaultTemplate - Default template ID
- * @returns {object} - The loaded state { resumeData, selectedTemplate, lastEdited }
+ * @param {ResumeData} defaultResumeData - Default resume data
+ * @param {TemplateId} defaultTemplate - Default template ID
+ * @returns {ResumeState} - The loaded state
  */
-const loadResumeState = (defaultResumeData, defaultTemplate) => {
-  const storedVersion = loadData(STORAGE_KEYS.VERSION);
+export const loadResumeState = (
+  defaultResumeData: ResumeData,
+  defaultTemplate: TemplateId
+): ResumeState => {
+  const storedVersion = loadData<string>(STORAGE_KEYS.VERSION);
 
   // If there's a version mismatch or no version, use default data
   if (storedVersion !== CURRENT_VERSION) {
@@ -93,26 +111,21 @@ const loadResumeState = (defaultResumeData, defaultTemplate) => {
   }
 
   return {
-    resumeData: loadData(STORAGE_KEYS.RESUME_DATA, defaultResumeData),
-    selectedTemplate: loadData(STORAGE_KEYS.SELECTED_TEMPLATE, defaultTemplate),
-    lastEdited: loadData(STORAGE_KEYS.LAST_EDITED, null),
+    resumeData: loadData<ResumeData>(
+      STORAGE_KEYS.RESUME_DATA,
+      defaultResumeData
+    ) as ResumeData,
+    selectedTemplate: loadData<TemplateId>(
+      STORAGE_KEYS.SELECTED_TEMPLATE,
+      defaultTemplate
+    ) as TemplateId,
+    lastEdited: loadData<string>(STORAGE_KEYS.LAST_EDITED, null),
   };
 };
 
 /**
  * Clear all resume builder data from local storage
  */
-const clearAllData = () => {
-  Object.values(STORAGE_KEYS).forEach((key) => removeData(key));
-};
-
-// Export available functions
-export {
-  STORAGE_KEYS,
-  saveData,
-  loadData,
-  removeData,
-  saveResumeState,
-  loadResumeState,
-  clearAllData,
+export const clearAllData = (): void => {
+  Object.values(STORAGE_KEYS).forEach((key) => removeData(key as StorageKey));
 };

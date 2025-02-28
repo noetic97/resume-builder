@@ -1,8 +1,17 @@
 import React from "react";
 import { TEMPLATES_LIST } from "../templates";
 import TemplatePreviewCard from "./TemplatePreviewCard";
+import { TemplateId } from "../../types/resume";
 
-const TemplateSelector = ({ selectedTemplate, onSelectTemplate }) => {
+interface TemplateSelectorProps {
+  selectedTemplate: TemplateId;
+  onSelectTemplate: (templateId: TemplateId) => void;
+}
+
+const TemplateSelector: React.FC<TemplateSelectorProps> = ({
+  selectedTemplate,
+  onSelectTemplate,
+}) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-6">
       <h2 className="text-xl font-semibold mb-4">Choose a Template</h2>

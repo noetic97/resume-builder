@@ -1,15 +1,20 @@
 import React from "react";
 
-const Skills = ({ skillsData, setSkillsData }) => {
-  const handleSkillInput = (e) => {
-    if (e.key === "Enter" && e.target.value.trim() !== "") {
+interface SkillsProps {
+  skillsData: string[];
+  setSkillsData: (data: string[]) => void;
+}
+
+const Skills: React.FC<SkillsProps> = ({ skillsData, setSkillsData }) => {
+  const handleSkillInput = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === "Enter" && e.currentTarget.value.trim() !== "") {
       e.preventDefault();
-      setSkillsData([...skillsData, e.target.value.trim()]);
-      e.target.value = "";
+      setSkillsData([...skillsData, e.currentTarget.value.trim()]);
+      e.currentTarget.value = "";
     }
   };
 
-  const removeSkill = (indexToRemove) => {
+  const removeSkill = (indexToRemove: number): void => {
     setSkillsData(skillsData.filter((_, index) => index !== indexToRemove));
   };
 

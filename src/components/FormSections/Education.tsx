@@ -1,7 +1,19 @@
 import React from "react";
+import { EducationItem } from "../../types/resume";
 
-const Education = ({ educationData, setEducationData }) => {
-  const handleEducationChange = (index, e) => {
+interface EducationProps {
+  educationData: EducationItem[];
+  setEducationData: (data: EducationItem[]) => void;
+}
+
+const Education: React.FC<EducationProps> = ({
+  educationData,
+  setEducationData,
+}) => {
+  const handleEducationChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     const { name, value } = e.target;
     const updatedEducation = [...educationData];
     updatedEducation[index] = {
@@ -12,7 +24,7 @@ const Education = ({ educationData, setEducationData }) => {
     setEducationData(updatedEducation);
   };
 
-  const addEducation = () => {
+  const addEducation = (): void => {
     setEducationData([
       ...educationData,
       {
@@ -25,7 +37,7 @@ const Education = ({ educationData, setEducationData }) => {
     ]);
   };
 
-  const removeEducation = (index) => {
+  const removeEducation = (index: number): void => {
     const updatedEducation = [...educationData];
     updatedEducation.splice(index, 1);
     setEducationData(updatedEducation);
