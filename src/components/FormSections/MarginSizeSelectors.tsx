@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 
 type MarginSize = "small" | "medium" | "large";
 
@@ -7,48 +8,76 @@ interface MarginSizeSelectorProps {
   onChange: (size: MarginSize) => void;
 }
 
+const Title = styled.h3`
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  color: ${(props) => props.theme.colors.text.secondary};
+  margin-bottom: 0.5rem;
+`;
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+interface SizeBtnProps {
+  isSelected: boolean;
+}
+
+const SizeButton = styled.button<SizeBtnProps>`
+  padding: 0.25rem 0.75rem;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  background-color: ${(props) =>
+    props.isSelected
+      ? props.theme.colors.primary.main
+      : props.theme.colors.gray[100]};
+  color: ${(props) =>
+    props.isSelected
+      ? props.theme.colors.primary.contrastText
+      : props.theme.colors.gray[800]};
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+
+  &:hover {
+    background-color: ${(props) =>
+      props.isSelected
+        ? props.theme.colors.primary.main
+        : props.theme.colors.gray[200]};
+  }
+`;
+
 const MarginSizeSelector: React.FC<MarginSizeSelectorProps> = ({
   selectedMarginSize,
   onChange,
 }) => {
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-      <h3 className="text-sm font-medium text-gray-700 mb-2">Page Margin</h3>
-      <div className="flex gap-2">
-        <button
+    <div>
+      <Title>Page Margin</Title>
+      <ButtonsContainer>
+        <SizeButton
           type="button"
           onClick={() => onChange("small")}
-          className={`px-3 py-1 rounded text-sm ${
-            selectedMarginSize === "small"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-          }`}
+          isSelected={selectedMarginSize === "small"}
         >
           Small
-        </button>
-        <button
+        </SizeButton>
+        <SizeButton
           type="button"
           onClick={() => onChange("medium")}
-          className={`px-3 py-1 rounded text-sm ${
-            selectedMarginSize === "medium"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-          }`}
+          isSelected={selectedMarginSize === "medium"}
         >
           Medium
-        </button>
-        <button
+        </SizeButton>
+        <SizeButton
           type="button"
           onClick={() => onChange("large")}
-          className={`px-3 py-1 rounded text-sm ${
-            selectedMarginSize === "large"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-          }`}
+          isSelected={selectedMarginSize === "large"}
         >
           Large
-        </button>
-      </div>
+        </SizeButton>
+      </ButtonsContainer>
     </div>
   );
 };

@@ -1,10 +1,71 @@
 import React from "react";
+import styled from "styled-components";
 import { ExperienceItem } from "../../types/resume";
+import {
+  FormGroup,
+  Label,
+  Input,
+  Textarea,
+  Checkbox,
+  Button,
+  Grid,
+} from "../Common";
 
 interface ExperienceProps {
   experienceData: ExperienceItem[];
   setExperienceData: (data: ExperienceItem[]) => void;
 }
+
+const ExperienceItemWrapper = styled.div`
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid ${(props) => props.theme.colors.divider};
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+`;
+
+const CheckboxWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+`;
+
+const CheckboxLabel = styled.label`
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  color: ${(props) => props.theme.colors.text.secondary};
+`;
+
+const AddButton = styled(Button)`
+  margin-top: 1rem;
+`;
+
+const ExperienceHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+const ExperienceTitle = styled.h3`
+  font-size: ${(props) => props.theme.typography.fontSize.lg};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+`;
+
+const RemoveButton = styled.button`
+  color: ${(props) => props.theme.colors.error.main};
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    color: ${(props) => props.theme.colors.error.dark};
+  }
+`;
 
 const Experience: React.FC<ExperienceProps> = ({
   experienceData,
@@ -52,122 +113,93 @@ const Experience: React.FC<ExperienceProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Work Experience</h2>
-
+    <div>
       {experienceData.map((exp, index) => (
-        <div
-          key={index}
-          className="mb-6 pb-6 border-b border-gray-200 last:border-b-0 last:pb-0"
-        >
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-medium text-lg">Position {index + 1}</h3>
+        <ExperienceItemWrapper key={index}>
+          <ExperienceHeader>
+            <ExperienceTitle>Position {index + 1}</ExperienceTitle>
             {experienceData.length > 1 && (
-              <button
+              <RemoveButton
                 onClick={() => removeExperience(index)}
-                className="text-red-500 hover:text-red-700"
+                type="button"
               >
                 Remove
-              </button>
+              </RemoveButton>
             )}
-          </div>
+          </ExperienceHeader>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Company
-              </label>
-              <input
+          <FormGroup>
+            <Label>Company</Label>
+            <Input
+              type="text"
+              name="company"
+              value={exp.company}
+              onChange={(e) => handleExperienceChange(index, e)}
+              placeholder="Acme Corp"
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <Label>Position</Label>
+            <Input
+              type="text"
+              name="position"
+              value={exp.position}
+              onChange={(e) => handleExperienceChange(index, e)}
+              placeholder="Senior Developer"
+            />
+          </FormGroup>
+
+          <Grid cols={1} gap={4}>
+            <FormGroup>
+              <Label>Start Date</Label>
+              <Input
                 type="text"
-                name="company"
-                value={exp.company}
+                name="startDate"
+                value={exp.startDate}
                 onChange={(e) => handleExperienceChange(index, e)}
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Acme Corp"
+                placeholder="Jan 2020"
               />
-            </div>
+            </FormGroup>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Position
-              </label>
-              <input
+            <FormGroup>
+              <Label>End Date</Label>
+              <Input
                 type="text"
-                name="position"
-                value={exp.position}
+                name="endDate"
+                value={exp.endDate}
                 onChange={(e) => handleExperienceChange(index, e)}
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="Senior Developer"
+                placeholder="Present"
+                disabled={exp.isCurrentPosition}
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Start Date
-                </label>
-                <input
-                  type="text"
-                  name="startDate"
-                  value={exp.startDate}
+              <CheckboxWrapper>
+                <Checkbox
+                  name="isCurrentPosition"
+                  checked={exp.isCurrentPosition}
                   onChange={(e) => handleExperienceChange(index, e)}
-                  className="mt-1 p-2 w-full border rounded-md"
-                  placeholder="Jan 2020"
                 />
-              </div>
+                <CheckboxLabel>Current Position</CheckboxLabel>
+              </CheckboxWrapper>
+            </FormGroup>
+          </Grid>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  End Date
-                </label>
-                <input
-                  type="text"
-                  name="endDate"
-                  value={exp.endDate}
-                  onChange={(e) => handleExperienceChange(index, e)}
-                  className="mt-1 p-2 w-full border rounded-md"
-                  placeholder="Present"
-                  disabled={exp.isCurrentPosition}
-                />
-                <div className="mt-1 flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isCurrentPosition"
-                    checked={exp.isCurrentPosition}
-                    onChange={(e) => handleExperienceChange(index, e)}
-                    className="mr-2"
-                  />
-                  <label className="text-sm text-gray-700">
-                    Current Position
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={exp.description}
-                onChange={(e) => handleExperienceChange(index, e)}
-                rows={4}
-                className="mt-1 p-2 w-full border rounded-md"
-                placeholder="• Led development of a new feature that increased user engagement by 25%
+          <FormGroup>
+            <Label>Description</Label>
+            <Textarea
+              name="description"
+              value={exp.description}
+              onChange={(e) => handleExperienceChange(index, e)}
+              rows={4}
+              placeholder="• Led development of a new feature that increased user engagement by 25%
 • Managed a team of 5 developers"
-              />
-            </div>
-          </div>
-        </div>
+            />
+          </FormGroup>
+        </ExperienceItemWrapper>
       ))}
 
-      <button
-        onClick={addExperience}
-        className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-      >
+      <AddButton onClick={addExperience} variant="primary">
         Add Experience
-      </button>
+      </AddButton>
     </div>
   );
 };

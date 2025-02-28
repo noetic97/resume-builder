@@ -1,10 +1,37 @@
 import React from "react";
+import styled from "styled-components";
 import { templateStyles } from "../templates";
 import { TemplateId } from "../../types/resume";
 
 interface TemplatePreviewCardProps {
   templateId: TemplateId;
 }
+
+// Container for the preview card
+const PreviewContainer = styled.div`
+  width: 100%;
+  height: 6rem;
+  overflow: hidden;
+  transform: scale(0.75);
+  transform-origin: top left;
+`;
+
+// Sample section component for the preview
+const SampleSection = styled.div`
+  margin-bottom: 0.25rem;
+`;
+
+const SampleSectionHeader = styled.div<{ template: any }>`
+  ${(props) => props.template.sectionHeader}
+  font-size: 0.5rem !important; /* Override the template's font size */
+`;
+
+const SampleLine = styled.div`
+  height: 0.25rem;
+  background-color: #e5e7eb;
+  width: 100%;
+  border-radius: 0.125rem;
+`;
 
 // A miniature preview of how the resume template will look
 const TemplatePreviewCard: React.FC<TemplatePreviewCardProps> = ({
@@ -19,32 +46,47 @@ const TemplatePreviewCard: React.FC<TemplatePreviewCardProps> = ({
     sections: ["Summary", "Experience", "Education", "Skills"],
   };
 
-  return (
-    <div
-      className={`w-full h-24 ${template.containerStyles} overflow-hidden scale-75 transform origin-top-left`}
-    >
-      {/* Miniature header */}
-      <div className={template.headerStyles}>
-        <div className={`text-xs ${template.nameStyles}`}>
-          {sampleData.name}
-        </div>
-        <div className={`text-xs ${template.titleStyles}`}>
-          {sampleData.title}
-        </div>
-      </div>
+  // Create styled components that apply the template styles
+  const TemplateContainer = styled.div`
+    ${template.container}
+  `;
 
-      {/* Sample sections */}
-      <div className="mt-1">
-        {sampleData.sections.map((section, index) => (
-          <div key={index} className="mb-1">
-            <div className={`text-xs ${template.sectionHeaderStyles}`}>
-              {section}
-            </div>
-            <div className="h-1 bg-gray-200 w-full rounded"></div>
-          </div>
-        ))}
-      </div>
-    </div>
+  const TemplateHeader = styled.div`
+    ${template.header}
+  `;
+
+  const TemplateName = styled.div`
+    ${template.nameStyle}
+    font-size: 0.75rem !important; /* Override the template's font size */
+  `;
+
+  const TemplateTitle = styled.div`
+    ${template.title}
+    font-size: 0.5rem !important; /* Override the template's font size */
+  `;
+
+  return (
+    <PreviewContainer>
+      <TemplateContainer>
+        {/* Miniature header */}
+        <TemplateHeader>
+          <TemplateName>{sampleData.name}</TemplateName>
+          <TemplateTitle>{sampleData.title}</TemplateTitle>
+        </TemplateHeader>
+
+        {/* Sample sections */}
+        <div style={{ marginTop: "0.25rem" }}>
+          {sampleData.sections.map((section, index) => (
+            <SampleSection key={index}>
+              <SampleSectionHeader template={template}>
+                {section}
+              </SampleSectionHeader>
+              <SampleLine />
+            </SampleSection>
+          ))}
+        </div>
+      </TemplateContainer>
+    </PreviewContainer>
   );
 };
 

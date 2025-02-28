@@ -1,34 +1,100 @@
-// src/components/templates.ts
-import { TemplateId, TemplateStyles, TemplateInfo } from "../types/resume";
+import { css } from "styled-components";
+import { TemplateId } from "../types/resume";
+
+// Define new types for styled-components templates
+export interface StyledTemplateStyles {
+  id: TemplateId;
+  name: string;
+  description: string;
+  container: ReturnType<typeof css>;
+  header: ReturnType<typeof css>;
+  nameStyle: ReturnType<typeof css>;
+  title: ReturnType<typeof css>;
+  sectionHeader: ReturnType<typeof css>;
+  section: ReturnType<typeof css>;
+  itemTitle: ReturnType<typeof css>;
+  itemSubtitle: ReturnType<typeof css>;
+  itemDate: ReturnType<typeof css>;
+  skill: ReturnType<typeof css>;
+  skillsContainer: ReturnType<typeof css>;
+  text: ReturnType<typeof css>;
+}
 
 const TEMPLATES = {
-  CLASSIC: "classic" as TemplateId,
-  MODERN: "modern" as TemplateId,
-  MINIMAL: "minimal" as TemplateId,
-  PROFESSIONAL: "professional" as TemplateId,
-  CREATIVE: "creative" as TemplateId,
-};
+  CLASSIC: "classic",
+  MODERN: "modern",
+  MINIMAL: "minimal",
+  PROFESSIONAL: "professional",
+  CREATIVE: "creative",
+} as const;
 
-// Template definitions with their styling properties
-export const templateStyles: Record<TemplateId, TemplateStyles> = {
+export type TemplateKeys = keyof typeof TEMPLATES;
+
+// Template definitions with their styling properties using styled-components
+export const templateStyles: Record<TemplateId, StyledTemplateStyles> = {
   [TEMPLATES.CLASSIC]: {
     id: TEMPLATES.CLASSIC,
     name: "Classic",
     description:
       "A traditional resume format with a clean, professional layout",
-    containerStyles: "bg-white p-6 rounded-md shadow border border-gray-200",
-    headerStyles: "text-center mb-6",
-    nameStyles: "text-2xl font-bold text-gray-800",
-    titleStyles: "text-lg text-gray-600",
-    sectionHeaderStyles:
-      "text-lg font-semibold border-b border-gray-300 pb-1 mb-2 text-gray-800",
-    sectionStyles: "mb-6",
-    itemTitleStyles: "font-medium text-gray-800",
-    itemSubtitleStyles: "text-gray-700",
-    itemDateStyles: "text-sm text-gray-600",
-    skillStyles: "bg-gray-200 px-2 py-1 text-sm rounded text-gray-800",
-    skillsContainerStyles: "flex flex-wrap gap-1",
-    textStyles: "text-sm text-gray-700",
+    container: css`
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 0.375rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+    `,
+    header: css`
+      text-align: center;
+      margin-bottom: 1.5rem;
+    `,
+    nameStyle: css`
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    `,
+    title: css`
+      font-size: 1.125rem;
+      color: #4b5563;
+    `,
+    sectionHeader: css`
+      font-size: 1.125rem;
+      font-weight: 600;
+      border-bottom: 1px solid #d1d5db;
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
+      color: #1f2937;
+    `,
+    section: css`
+      margin-bottom: 1.5rem;
+    `,
+    itemTitle: css`
+      font-weight: 500;
+      color: #1f2937;
+    `,
+    itemSubtitle: css`
+      color: #374151;
+    `,
+    itemDate: css`
+      font-size: 0.875rem;
+      color: #4b5563;
+    `,
+    skill: css`
+      background-color: #e5e7eb;
+      padding: 0 0.5rem;
+      font-size: 0.875rem;
+      border-radius: 0.25rem;
+      color: #1f2937;
+    `,
+    skillsContainer: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    `,
+    text: css`
+      font-size: 0.875rem;
+      color: #374151;
+    `,
   },
 
   [TEMPLATES.MODERN]: {
@@ -36,38 +102,127 @@ export const templateStyles: Record<TemplateId, TemplateStyles> = {
     name: "Modern",
     description:
       "A contemporary design with bold section headers and clean typography",
-    containerStyles: "bg-white p-6 rounded-md shadow-md",
-    headerStyles: "border-l-4 border-blue-500 pl-4 mb-6",
-    nameStyles: "text-2xl font-bold text-gray-900",
-    titleStyles: "text-lg text-blue-600 font-medium",
-    sectionHeaderStyles:
-      "text-lg font-semibold border-l-4 border-blue-500 pl-2 mb-3 text-gray-900",
-    sectionStyles: "mb-6",
-    itemTitleStyles: "font-semibold text-gray-900",
-    itemSubtitleStyles: "text-blue-600",
-    itemDateStyles: "text-sm text-gray-600 italic",
-    skillStyles: "bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm",
-    skillsContainerStyles: "flex flex-wrap gap-2",
-    textStyles: "text-sm text-gray-700 leading-relaxed",
+    container: css`
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 0.375rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    `,
+    header: css`
+      border-left: 4px solid #3b82f6;
+      padding-left: 1rem;
+      margin-bottom: 1.5rem;
+    `,
+    nameStyle: css`
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+    `,
+    title: css`
+      font-size: 1.125rem;
+      color: #3b82f6;
+      font-weight: 500;
+    `,
+    sectionHeader: css`
+      font-size: 1.125rem;
+      font-weight: 600;
+      border-left: 4px solid #3b82f6;
+      padding-left: 0.5rem;
+      margin-bottom: 0.75rem;
+      color: #111827;
+    `,
+    section: css`
+      margin-bottom: 1.5rem;
+    `,
+    itemTitle: css`
+      font-weight: 600;
+      color: #111827;
+    `,
+    itemSubtitle: css`
+      color: #3b82f6;
+    `,
+    itemDate: css`
+      font-size: 0.875rem;
+      color: #4b5563;
+      font-style: italic;
+    `,
+    skill: css`
+      background-color: #dbeafe;
+      color: #1e40af;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+    `,
+    skillsContainer: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    `,
+    text: css`
+      font-size: 0.875rem;
+      color: #374151;
+      line-height: 1.5;
+    `,
   },
 
   [TEMPLATES.MINIMAL]: {
     id: TEMPLATES.MINIMAL,
     name: "Minimal",
     description: "A minimalist design focusing on content with subtle styling",
-    containerStyles: "bg-white p-6 rounded-md",
-    headerStyles: "mb-6 pb-3 border-b border-gray-200",
-    nameStyles: "text-2xl font-light text-gray-800",
-    titleStyles: "text-gray-500",
-    sectionHeaderStyles:
-      "uppercase tracking-wider text-sm font-medium text-gray-500 mb-3",
-    sectionStyles: "mb-6",
-    itemTitleStyles: "font-medium text-gray-800",
-    itemSubtitleStyles: "text-gray-600",
-    itemDateStyles: "text-sm text-gray-500",
-    skillStyles: "mr-3 text-gray-600 text-sm",
-    skillsContainerStyles: "flex flex-wrap",
-    textStyles: "text-sm text-gray-600 leading-relaxed",
+    container: css`
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 0.375rem;
+    `,
+    header: css`
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+    `,
+    nameStyle: css`
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: #1f2937;
+    `,
+    title: css`
+      color: #6b7280;
+    `,
+    sectionHeader: css`
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #6b7280;
+      margin-bottom: 0.75rem;
+    `,
+    section: css`
+      margin-bottom: 1.5rem;
+    `,
+    itemTitle: css`
+      font-weight: 500;
+      color: #1f2937;
+    `,
+    itemSubtitle: css`
+      color: #4b5563;
+    `,
+    itemDate: css`
+      font-size: 0.875rem;
+      color: #6b7280;
+    `,
+    skill: css`
+      margin-right: 0.75rem;
+      color: #4b5563;
+      font-size: 0.875rem;
+    `,
+    skillsContainer: css`
+      display: flex;
+      flex-wrap: wrap;
+    `,
+    text: css`
+      font-size: 0.875rem;
+      color: #4b5563;
+      line-height: 1.5;
+    `,
   },
 
   [TEMPLATES.PROFESSIONAL]: {
@@ -75,41 +230,131 @@ export const templateStyles: Record<TemplateId, TemplateStyles> = {
     name: "Professional",
     description:
       "A structured, business-focused layout for corporate positions",
-    containerStyles:
-      "bg-gray-50 p-6 rounded-md border border-gray-300 shadow-sm",
-    headerStyles: "bg-gray-800 text-white p-4 mb-6 rounded-t-md -mx-6 -mt-6",
-    nameStyles: "text-2xl font-bold",
-    titleStyles: "text-gray-300",
-    sectionHeaderStyles:
-      "text-lg font-semibold text-gray-800 border-b-2 border-gray-800 pb-1 mb-3",
-    sectionStyles: "mb-6",
-    itemTitleStyles: "font-semibold text-gray-800",
-    itemSubtitleStyles: "text-gray-700",
-    itemDateStyles: "text-sm font-medium text-gray-600",
-    skillStyles: "bg-gray-800 text-white px-2 py-1 text-xs rounded",
-    skillsContainerStyles: "flex flex-wrap gap-1",
-    textStyles: "text-sm text-gray-700",
+    container: css`
+      background-color: #f9fafb;
+      padding: 1.5rem;
+      border-radius: 0.375rem;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    `,
+    header: css`
+      background-color: #1f2937;
+      color: white;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-top-left-radius: 0.375rem;
+      border-top-right-radius: 0.375rem;
+      margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    `,
+    nameStyle: css`
+      font-size: 1.5rem;
+      font-weight: 700;
+    `,
+    title: css`
+      color: #d1d5db;
+    `,
+    sectionHeader: css`
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1f2937;
+      border-bottom: 2px solid #1f2937;
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.75rem;
+    `,
+    section: css`
+      margin-bottom: 1.5rem;
+    `,
+    itemTitle: css`
+      font-weight: 600;
+      color: #1f2937;
+    `,
+    itemSubtitle: css`
+      color: #374151;
+    `,
+    itemDate: css`
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #4b5563;
+    `,
+    skill: css`
+      background-color: #1f2937;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      border-radius: 0.25rem;
+    `,
+    skillsContainer: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    `,
+    text: css`
+      font-size: 0.875rem;
+      color: #374151;
+    `,
   },
 
   [TEMPLATES.CREATIVE]: {
     id: TEMPLATES.CREATIVE,
     name: "Creative",
     description: "A vibrant design for creative fields and positions",
-    containerStyles:
-      "bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-md shadow-md",
-    headerStyles: "mb-6 text-center",
-    nameStyles: "text-3xl font-bold text-indigo-900",
-    titleStyles: "text-lg text-purple-600",
-    sectionHeaderStyles:
-      "text-lg font-semibold text-indigo-800 border-b border-purple-300 pb-1 mb-3",
-    sectionStyles: "mb-6",
-    itemTitleStyles: "font-semibold text-indigo-900",
-    itemSubtitleStyles: "text-purple-700",
-    itemDateStyles: "text-sm text-indigo-600",
-    skillStyles:
-      "bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm",
-    skillsContainerStyles: "flex flex-wrap gap-2",
-    textStyles: "text-sm text-indigo-900",
+    container: css`
+      background: linear-gradient(to bottom right, #ede9fe, #e0e7ff);
+      padding: 1.5rem;
+      border-radius: 0.375rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    `,
+    header: css`
+      margin-bottom: 1.5rem;
+      text-align: center;
+    `,
+    nameStyle: css`
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #312e81;
+    `,
+    title: css`
+      font-size: 1.125rem;
+      color: #7c3aed;
+    `,
+    sectionHeader: css`
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #4f46e5;
+      border-bottom: 1px solid #c4b5fd;
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.75rem;
+    `,
+    section: css`
+      margin-bottom: 1.5rem;
+    `,
+    itemTitle: css`
+      font-weight: 600;
+      color: #312e81;
+    `,
+    itemSubtitle: css`
+      color: #6d28d9;
+    `,
+    itemDate: css`
+      font-size: 0.875rem;
+      color: #4f46e5;
+    `,
+    skill: css`
+      background: linear-gradient(to right, #4f46e5, #7c3aed);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+    `,
+    skillsContainer: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    `,
+    text: css`
+      font-size: 0.875rem;
+      color: #312e81;
+    `,
   },
 };
 
@@ -117,12 +362,10 @@ export const templateStyles: Record<TemplateId, TemplateStyles> = {
 export const DEFAULT_TEMPLATE = TEMPLATES.CLASSIC;
 
 // Export templates object for use in selectors
-export const TEMPLATES_LIST: TemplateInfo[] = Object.values(templateStyles).map(
-  (template) => ({
-    id: template.id,
-    name: template.name,
-    description: template.description,
-  })
-);
+export const TEMPLATES_LIST = Object.values(templateStyles).map((template) => ({
+  id: template.id,
+  name: template.name,
+  description: template.description,
+}));
 
 export default TEMPLATES;

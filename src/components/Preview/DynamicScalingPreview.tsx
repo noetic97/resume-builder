@@ -1,13 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
+import styled from "styled-components";
 import { templateStyles, DEFAULT_TEMPLATE } from "../templates";
-import { ResumeData, TemplateId, TemplateStyles } from "../../types/resume";
+import { ResumeData, TemplateId } from "../../types/resume";
+import { Heading2 } from "../Common";
 
 // A4 paper dimensions constants
 const A4_WIDTH_MM = 210; // Width in mm
 const A4_HEIGHT_MM = 297; // Height in mm
-const PAGE_MARGIN_MM = 10; // Margin in mm (reduced from 20 to 10)
-
-// Convert mm to px (96 dpi)
 const MM_TO_PX = 3.78; // Approximate conversion at 96 DPI
 
 interface DynamicScalingPreviewProps {
@@ -19,8 +18,180 @@ interface DynamicScalingPreviewProps {
 
 interface ResumeContentProps {
   resumeData: ResumeData;
-  template: TemplateStyles;
+  template: any;
 }
+
+// Styled components for the preview
+const PreviewContainer = styled.div`
+  position: sticky;
+  top: 1.5rem;
+
+  ${(props) => props.theme.media.xl} {
+    padding-right: 2rem;
+  }
+`;
+
+const PreviewOverflowContainer = styled.div`
+  overflow: auto;
+`;
+
+const PreviewWrapper = styled.div`
+  margin: 0 auto;
+`;
+
+interface PreviewPageProps {
+  scale: number;
+  pageMarginPx: number;
+}
+
+const PreviewPage = styled.div<PreviewPageProps>`
+  position: relative;
+  margin-bottom: 1.5rem;
+  box-shadow: ${(props) => props.theme.shadows.xl};
+  background-color: white;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  width: ${(props) => A4_WIDTH_MM * MM_TO_PX * props.scale}px;
+  height: ${(props) => A4_HEIGHT_MM * MM_TO_PX * props.scale}px;
+`;
+
+const PageContent = styled.div<PreviewPageProps>`
+  position: absolute;
+  inset: 0;
+  padding: ${(props) => props.pageMarginPx}px;
+  overflow: hidden;
+`;
+
+interface ContentWrapperProps {
+  scale: number;
+  pageMarginMM: number;
+}
+
+const ContentWrapper = styled.div<ContentWrapperProps>`
+  height: 100%;
+  overflow: hidden;
+  transform-origin: top left;
+  transform: scale(${(props) => props.scale});
+  width: ${(props) => (A4_WIDTH_MM - props.pageMarginMM * 2) * MM_TO_PX}px;
+  height: ${(props) => (A4_HEIGHT_MM - props.pageMarginMM * 2) * MM_TO_PX}px;
+  position: relative;
+`;
+
+interface ContentPositionerProps {
+  pageIndex: number;
+  contentPerPage: number;
+}
+
+const ContentPositioner = styled.div<ContentPositionerProps>`
+  position: absolute;
+  top: -${(props) => props.pageIndex * props.contentPerPage}px;
+  width: 100%;
+`;
+
+const PageNumber = styled.div`
+  position: absolute;
+  bottom: -20px;
+  right: 0;
+  font-size: 0.75rem;
+  color: ${(props) => props.theme.colors.gray[500]};
+`;
+
+// Hidden content measurement div
+const HiddenContent = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1000;
+`;
+
+// Resume-specific styled components
+const ResumeHeader = styled.div<{ template: any }>`
+  ${(props) => props.template.header}
+`;
+
+const ResumeName = styled.h1<{ template: any }>`
+  ${(props) => props.template.nameStyle}
+`;
+
+const ResumeTitle = styled.p<{ template: any }>`
+  ${(props) => props.template.title}
+`;
+
+const ResumeContactInfo = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: ${(props) => props.theme.colors.gray[600]};
+
+  ${(props) => props.theme.media.sm} {
+    font-size: 0.875rem;
+  }
+`;
+
+const ContactItem = styled.span`
+  white-space: nowrap;
+`;
+
+const ResumeSection = styled.div<{ template: any }>`
+  ${(props) => props.template.section}
+`;
+
+const SectionHeader = styled.h2<{ template: any }>`
+  ${(props) => props.template.sectionHeader}
+`;
+
+const ExperienceItem = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const ExperienceHeader = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.25rem;
+`;
+
+const ItemTitle = styled.h3<{ template: any }>`
+  ${(props) => props.template.itemTitle}
+`;
+
+const ItemDetails = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ItemSubtitle = styled.span<{ template: any }>`
+  ${(props) => props.template.itemSubtitle}
+`;
+
+const ItemDate = styled.span<{ template: any }>`
+  ${(props) => props.template.itemDate}
+  font-size: 0.75rem;
+  white-space: nowrap;
+`;
+
+const ItemDescription = styled.p<{ template: any }>`
+  ${(props) => props.template.text}
+  margin-top: 0.25rem;
+  white-space: pre-line;
+`;
+
+const SkillsContainer = styled.div<{ template: any }>`
+  ${(props) => props.template.skillsContainer}
+`;
+
+const SkillItem = styled.span<{ template: any }>`
+  ${(props) => props.template.skill}
+`;
 
 const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
   resumeData,
@@ -158,96 +329,68 @@ const DynamicScalingPreview: React.FC<DynamicScalingPreviewProps> = ({
   }, [contentHeight, scale, pageMarginMM]);
 
   return (
-    <div className="sticky top-6 xl:pr-8" ref={containerRef}>
-      <h2 className="text-xl font-semibold mb-4">Resume Preview</h2>
+    <PreviewContainer ref={containerRef}>
+      <Heading2>Resume Preview</Heading2>
 
-      <div className="preview-container overflow-auto">
+      <PreviewOverflowContainer>
         {/* Hidden div to measure content height */}
-        <div
-          className="absolute top-0 left-0 opacity-0 pointer-events-none"
-          style={{ zIndex: -1000 }}
-        >
+        <HiddenContent>
           <div
             ref={contentRef}
             style={{
-              width: `${
-                A4_WIDTH_MM * MM_TO_PX - PAGE_MARGIN_MM * 2 * MM_TO_PX
-              }px`,
+              width: `${(A4_WIDTH_MM - pageMarginMM * 2) * MM_TO_PX}px`,
             }}
           >
             <ResumeContent resumeData={resumeData} template={template} />
           </div>
-        </div>
+        </HiddenContent>
 
         {/* Wrapper for centering */}
-        <div className="preview-wrapper mx-auto">
+        <PreviewWrapper>
           {/* Render each page */}
           {pages.map((_, index) => (
-            <div
+            <PreviewPage
               key={index}
               id={
                 index === 0
                   ? "resume-preview"
                   : `resume-preview-page-${index + 1}`
               }
-              className="relative mb-6 last:mb-0 shadow-lg"
-              style={{
-                width: `${A4_WIDTH_MM * MM_TO_PX * scale}px`,
-                height: `${A4_HEIGHT_MM * MM_TO_PX * scale}px`,
-                backgroundColor: "white",
-              }}
+              scale={scale}
+              pageMarginPx={pageMarginMM * MM_TO_PX * scale}
             >
               {/* Actual page content */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  padding: `${pageMarginMM * MM_TO_PX * scale}px`,
-                  overflow: "hidden",
-                }}
+              <PageContent
+                scale={scale}
+                pageMarginPx={pageMarginMM * MM_TO_PX * scale}
               >
                 {/* Resume content with proper positioning for each page */}
-                <div
-                  className={`h-full overflow-hidden ${template.containerStyles.replace(
-                    /bg-\w+-\d+/g,
-                    ""
-                  )}`}
-                  style={{
-                    transformOrigin: "top left",
-                    transform: `scale(${scale})`,
-                    width: `${(A4_WIDTH_MM - pageMarginMM * 2) * MM_TO_PX}px`,
-                    height: `${(A4_HEIGHT_MM - pageMarginMM * 2) * MM_TO_PX}px`,
-                    position: "relative",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: `-${
-                        index *
-                        (((A4_HEIGHT_MM - pageMarginMM * 2) * MM_TO_PX) / scale)
-                      }px`,
-                      width: "100%",
-                    }}
+                <ContentWrapper scale={scale} pageMarginMM={pageMarginMM}>
+                  <ContentPositioner
+                    pageIndex={index}
+                    contentPerPage={
+                      ((A4_HEIGHT_MM - pageMarginMM * 2) * MM_TO_PX) / scale
+                    }
                   >
                     <ResumeContent
                       resumeData={resumeData}
                       template={template}
                     />
-                  </div>
-                </div>
-              </div>
+                  </ContentPositioner>
+                </ContentWrapper>
+              </PageContent>
 
               {/* Page number indicator (outside actual page content) */}
               {!forExport && (
-                <div className="absolute bottom-[-20px] right-0 text-xs text-gray-500 page-number">
+                <PageNumber className="page-number">
                   Page {index + 1} of {pages.length}
-                </div>
+                </PageNumber>
               )}
-            </div>
+            </PreviewPage>
           ))}
-        </div>
-      </div>
-    </div>
+        </PreviewWrapper>
+      </PreviewOverflowContainer>
+    </PreviewContainer>
   );
 };
 
@@ -259,125 +402,117 @@ const ResumeContent: React.FC<ResumeContentProps> = ({
   return (
     <>
       {/* Header/Personal Info */}
-      <div className={template.headerStyles}>
-        <h1 className={template.nameStyles}>
+      <ResumeHeader template={template}>
+        <ResumeName template={template}>
           {resumeData.personal.name || "Your Name"}
-        </h1>
-        <p className={template.titleStyles}>
+        </ResumeName>
+        <ResumeTitle template={template}>
           {resumeData.personal.title || "Professional Title"}
-        </p>
+        </ResumeTitle>
 
-        <div className="mt-2 flex flex-wrap justify-center gap-x-2 text-xs sm:text-sm text-gray-600">
+        <ResumeContactInfo>
           {resumeData.personal.email && (
-            <span className="whitespace-nowrap">
-              {resumeData.personal.email}
-            </span>
+            <ContactItem>{resumeData.personal.email}</ContactItem>
           )}
           {resumeData.personal.phone && (
-            <span className="whitespace-nowrap">
-              {resumeData.personal.phone}
-            </span>
+            <ContactItem>{resumeData.personal.phone}</ContactItem>
           )}
           {resumeData.personal.location && (
-            <span className="whitespace-nowrap">
-              {resumeData.personal.location}
-            </span>
+            <ContactItem>{resumeData.personal.location}</ContactItem>
           )}
-        </div>
-      </div>
+        </ResumeContactInfo>
+      </ResumeHeader>
 
       {/* Summary */}
       {resumeData.personal.summary && (
-        <div className={template.sectionStyles}>
-          <h2 className={template.sectionHeaderStyles}>Professional Summary</h2>
-          <p className={template.textStyles}>{resumeData.personal.summary}</p>
-        </div>
+        <ResumeSection template={template}>
+          <SectionHeader template={template}>
+            Professional Summary
+          </SectionHeader>
+          <ItemDescription template={template}>
+            {resumeData.personal.summary}
+          </ItemDescription>
+        </ResumeSection>
       )}
 
       {/* Experience */}
       {resumeData.experience.some((exp) => exp.company || exp.position) && (
-        <div className={template.sectionStyles}>
-          <h2 className={template.sectionHeaderStyles}>Work Experience</h2>
+        <ResumeSection template={template}>
+          <SectionHeader template={template}>Work Experience</SectionHeader>
 
           {resumeData.experience.map(
             (exp, index) =>
               (exp.company || exp.position) && (
-                <div key={index} className="mb-4">
-                  <div className="w-full flex flex-col mb-1">
-                    <h3 className={`${template.itemTitleStyles}`}>
+                <ExperienceItem key={index}>
+                  <ExperienceHeader>
+                    <ItemTitle template={template}>
                       {exp.position || "Position"}
-                    </h3>
-                    <div className="flex justify-between items-center">
-                      <span className={`${template.itemSubtitleStyles}`}>
+                    </ItemTitle>
+                    <ItemDetails>
+                      <ItemSubtitle template={template}>
                         {exp.company || "Company"}
-                      </span>
-                      <span
-                        className={`${template.itemDateStyles} text-xs whitespace-nowrap`}
-                      >
+                      </ItemSubtitle>
+                      <ItemDate template={template}>
                         {exp.startDate || "Start Date"} -{" "}
                         {exp.isCurrentPosition
                           ? "Present"
                           : exp.endDate || "End Date"}
-                      </span>
-                    </div>
-                  </div>
+                      </ItemDate>
+                    </ItemDetails>
+                  </ExperienceHeader>
                   {exp.description && (
-                    <p
-                      className={`${template.textStyles} mt-1 whitespace-pre-line`}
-                    >
+                    <ItemDescription template={template}>
                       {exp.description}
-                    </p>
+                    </ItemDescription>
                   )}
-                </div>
+                </ExperienceItem>
               )
           )}
-        </div>
+        </ResumeSection>
       )}
 
       {/* Education */}
       {resumeData.education.some((edu) => edu.institution || edu.degree) && (
-        <div className={template.sectionStyles}>
-          <h2 className={template.sectionHeaderStyles}>Education</h2>
+        <ResumeSection template={template}>
+          <SectionHeader template={template}>Education</SectionHeader>
 
           {resumeData.education.map(
             (edu, index) =>
               (edu.institution || edu.degree) && (
-                <div key={index} className="mb-4">
-                  <div className="w-full flex flex-col mb-1">
-                    <h3 className={`${template.itemTitleStyles}`}>
+                <ExperienceItem key={index}>
+                  <ExperienceHeader>
+                    <ItemTitle template={template}>
                       {edu.institution || "Institution"}
-                    </h3>
-                    <div className="flex justify-between items-center">
-                      <span className={`${template.itemSubtitleStyles}`}>
+                    </ItemTitle>
+                    <ItemDetails>
+                      <ItemSubtitle template={template}>
                         {edu.degree || "Degree"}
                         {edu.field ? ` in ${edu.field}` : ""}
                         {edu.gpa ? ` - GPA: ${edu.gpa}` : ""}
-                      </span>
-                      <span
-                        className={`${template.itemDateStyles} text-xs whitespace-nowrap`}
-                      >
+                      </ItemSubtitle>
+                      <ItemDate template={template}>
                         {edu.graduationDate || "Graduation Date"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                      </ItemDate>
+                    </ItemDetails>
+                  </ExperienceHeader>
+                </ExperienceItem>
               )
           )}
-        </div>
+        </ResumeSection>
       )}
 
       {/* Skills */}
       {resumeData.skills.length > 0 && (
-        <div className={template.sectionStyles}>
-          <h2 className={template.sectionHeaderStyles}>Skills</h2>
-          <div className={template.skillsContainerStyles}>
+        <ResumeSection template={template}>
+          <SectionHeader template={template}>Skills</SectionHeader>
+          <SkillsContainer template={template}>
             {resumeData.skills.map((skill, index) => (
-              <span key={index} className={template.skillStyles}>
+              <SkillItem key={index} template={template}>
                 {skill}
-              </span>
+              </SkillItem>
             ))}
-          </div>
-        </div>
+          </SkillsContainer>
+        </ResumeSection>
       )}
     </>
   );

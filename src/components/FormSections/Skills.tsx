@@ -1,9 +1,66 @@
 import React from "react";
+import styled from "styled-components";
 
 interface SkillsProps {
   skillsData: string[];
   setSkillsData: (data: string[]) => void;
 }
+
+const FormGroup = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const Label = styled.label`
+  display: block;
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  color: ${(props) => props.theme.colors.text.secondary};
+  margin-bottom: 0.5rem;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid ${(props) => props.theme.colors.divider};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+
+  &:focus {
+    outline: none;
+    border-color: ${(props) => props.theme.colors.primary.main};
+    box-shadow: 0 0 0 2px ${(props) => props.theme.colors.primary.light}40;
+  }
+`;
+
+const SkillsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+`;
+
+const SkillTag = styled.div`
+  background-color: ${(props) => props.theme.colors.blue[100]};
+  color: ${(props) => props.theme.colors.blue[800]};
+  padding: 0.25rem 0.75rem;
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  display: flex;
+  align-items: center;
+`;
+
+const RemoveButton = styled.button`
+  margin-left: 0.5rem;
+  color: ${(props) => props.theme.colors.blue[600]};
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    color: ${(props) => props.theme.colors.blue[800]};
+  }
+`;
 
 const Skills: React.FC<SkillsProps> = ({ skillsData, setSkillsData }) => {
   const handleSkillInput = (e: React.KeyboardEvent<HTMLInputElement>): void => {
@@ -19,37 +76,30 @@ const Skills: React.FC<SkillsProps> = ({ skillsData, setSkillsData }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Skills</h2>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Add skills (press Enter after each skill)
-        </label>
-        <input
+    <div>
+      <FormGroup>
+        <Label>Add skills (press Enter after each skill)</Label>
+        <Input
           type="text"
           onKeyDown={handleSkillInput}
-          className="p-2 w-full border rounded-md"
           placeholder="JavaScript, React, Node.js"
         />
-      </div>
+      </FormGroup>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <SkillsContainer>
         {skillsData.map((skill, index) => (
-          <div
-            key={index}
-            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center"
-          >
+          <SkillTag key={index}>
             <span>{skill}</span>
-            <button
+            <RemoveButton
               onClick={() => removeSkill(index)}
-              className="ml-2 text-blue-600 hover:text-blue-800"
+              type="button"
+              aria-label="Remove skill"
             >
               ×
-            </button>
-          </div>
+            </RemoveButton>
+          </SkillTag>
         ))}
-      </div>
+      </SkillsContainer>
     </div>
   );
 };

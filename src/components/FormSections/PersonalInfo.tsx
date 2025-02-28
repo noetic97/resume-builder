@@ -1,5 +1,6 @@
 import React from "react";
 import { PersonalInfo as PersonalInfoType } from "../../types/resume";
+import { FormGroup, Label, Input, Textarea, Grid } from "../Common";
 
 interface PersonalInfoProps {
   personalData: PersonalInfoType;
@@ -21,94 +22,73 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Full Name
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={personalData.name}
-            onChange={handleChange}
-            className="mt-1 p-2 w-full border rounded-md"
-            placeholder="Jane Doe"
-          />
-        </div>
+    <div>
+      <FormGroup>
+        <Label>Full Name</Label>
+        <Input
+          type="text"
+          name="name"
+          value={personalData.name}
+          onChange={handleChange}
+          placeholder="Jane Doe"
+        />
+      </FormGroup>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Professional Title
-          </label>
-          <input
-            type="text"
-            name="title"
-            value={personalData.title}
-            onChange={handleChange}
-            className="mt-1 p-2 w-full border rounded-md"
-            placeholder="Software Engineer"
-          />
-        </div>
+      <FormGroup>
+        <Label>Professional Title</Label>
+        <Input
+          type="text"
+          name="title"
+          value={personalData.title}
+          onChange={handleChange}
+          placeholder="Software Engineer"
+        />
+      </FormGroup>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={personalData.email}
-              onChange={handleChange}
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="jane.doe@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Phone
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={personalData.phone}
-              onChange={handleChange}
-              className="mt-1 p-2 w-full border rounded-md"
-              placeholder="(555) 123-4567"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Location
-          </label>
-          <input
-            type="text"
-            name="location"
-            value={personalData.location}
+      <Grid cols={1} gap={4}>
+        <FormGroup>
+          <Label>Email</Label>
+          <Input
+            type="email"
+            name="email"
+            value={personalData.email}
             onChange={handleChange}
-            className="mt-1 p-2 w-full border rounded-md"
-            placeholder="San Francisco, CA"
+            placeholder="jane.doe@example.com"
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Professional Summary
-          </label>
-          <textarea
-            name="summary"
-            value={personalData.summary}
+        </FormGroup>
+        <FormGroup>
+          <Label>Phone</Label>
+          <Input
+            type="tel"
+            name="phone"
+            value={personalData.phone}
             onChange={handleChange}
-            rows={4}
-            className="mt-1 p-2 w-full border rounded-md"
-            placeholder="Experienced software engineer with a passion for developing innovative solutions..."
+            placeholder="(555) 123-4567"
           />
-        </div>
-      </div>
+        </FormGroup>
+      </Grid>
+
+      <FormGroup>
+        <Label>Location</Label>
+        <Input
+          type="text"
+          name="location"
+          value={personalData.location}
+          onChange={handleChange}
+          placeholder="San Francisco, CA"
+        />
+      </FormGroup>
+
+      <FormGroup>
+        <Label>Professional Summary</Label>
+        <Textarea
+          name="summary"
+          value={personalData.summary}
+          onChange={handleChange}
+          rows={4}
+          placeholder="Experienced software engineer with a passion for developing innovative solutions..."
+        />
+      </FormGroup>
     </div>
   );
 };

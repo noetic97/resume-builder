@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -71,48 +67,16 @@ button:focus-visible {
   }
 }
 
-/* Base A4 paper styles - now using a larger base scale factor */
-.a4-paper {
-  width: 262.5px; /* 210mm * 1.25 scale factor */
-  min-height: 371.25px; /* 297mm * 1.25 scale factor */
-  max-width: 100%;
+/* Paper styles */
+.preview-container {
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.preview-wrapper {
+  width: fit-content;
   margin: 0 auto;
-  background: white;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  position: relative;
-  padding: 25px; /* 20mm * 1.25 scale factor */
-  overflow: hidden;
-  page-break-after: always;
-}
-
-/* Add paper texture */
-.a4-paper::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0.7) 2px,
-      transparent 2px
-    ),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.7) 2px, transparent 2px);
-  background-size: 20px 20px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Paper content wrapper */
-.a4-content {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-}
-
-/* When content overflows, create a new page */
-.a4-paper.overflow {
-  margin-bottom: 20px;
 }
 
 /* Page number indicator */
@@ -124,71 +88,10 @@ button:focus-visible {
   color: #aaa;
 }
 
-/* Preview container */
-.preview-container {
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 20px 0;
-}
-
-/* Preview wrapper for centering */
-.preview-wrapper {
-  width: fit-content;
-  margin: 0 auto;
-}
-
-/* Responsive adjustments for different screen sizes */
-
-/* Medium screens */
-@media (min-width: 768px) {
-  .a4-paper {
-    width: 262.5px; /* 210mm * 1.25 scale factor */
-    min-height: 371.25px; /* 297mm * 1.25 scale factor */
-  }
-}
-
-/* Large screens */
-@media (min-width: 1024px) {
-  .a4-paper {
-    width: 315px; /* 210mm * 1.5 scale factor */
-    min-height: 445.5px; /* 297mm * 1.5 scale factor */
-    padding: 30px; /* 20mm * 1.5 scale factor */
-  }
-}
-
-/* Extra large screens */
-@media (min-width: 1280px) {
-  .a4-paper {
-    width: 378px; /* 210mm * 1.8 scale factor */
-    min-height: 534.6px; /* 297mm * 1.8 scale factor */
-    padding: 36px; /* 20mm * 1.8 scale factor */
-  }
-}
-
-/* 2XL screens */
-@media (min-width: 1536px) {
-  .a4-paper {
-    width: 420px; /* 210mm * 2.0 scale factor */
-    min-height: 594px; /* 297mm * 2.0 scale factor */
-    padding: 40px; /* 20mm * 2.0 scale factor */
-  }
-}
-
 /* Print-specific styles */
 @media print {
-  .a4-paper {
-    box-shadow: none;
-    width: 210mm;
-    height: 297mm;
-    padding: 20mm;
-  }
-
   body {
     background: none;
-  }
-
-  .a4-paper.overflow {
-    margin-bottom: 0;
   }
 
   .page-number {

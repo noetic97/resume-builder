@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import styled from "styled-components";
 import PersonalInfo from "./FormSections/PersonalInfo";
 import Experience from "./FormSections/Experience";
 import Education from "./FormSections/Education";
@@ -15,10 +16,118 @@ import {
   loadResumeState,
   clearAllData,
 } from "../utils/storageService";
+import { Container, Heading1, Text, Button, Row, Col, Spacer } from "./Common";
+import CollapsibleSection from "./Common/CollapsibleSection";
 
 // A4 paper dimensions constants
 const A4_WIDTH_MM = 210; // Width in mm
 const A4_HEIGHT_MM = 297; // Height in mm
+
+// Styled components for the ResumeBuilder
+const PageContainer = styled(Container)`
+  padding: 1.5rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  ${(props) => props.theme.media.md} {
+    padding: 2rem;
+    max-width: 95%;
+  }
+
+  ${(props) => props.theme.media.lg} {
+    padding: 2rem 3rem;
+    max-width: 90%;
+  }
+
+  ${(props) => props.theme.media.xl} {
+    max-width: 1536px;
+    padding: 2.5rem 4rem;
+  }
+
+  ${(props) => props.theme.media["2xl"]} {
+    padding: 3rem 5rem;
+  }
+`;
+
+const Header = styled.header`
+  margin-bottom: 2rem;
+  text-align: center;
+`;
+
+const NoticeMessage = styled.div`
+  margin-top: 0.5rem;
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  color: ${(props) => props.theme.colors.primary.main};
+  background-color: ${(props) => props.theme.colors.blue[50]};
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  display: inline-block;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+`;
+
+const LastSavedText = styled.span`
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  color: ${(props) => props.theme.colors.text.secondary};
+  align-self: center;
+  margin-left: auto;
+`;
+
+const ContentLayout = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  ${(props) => props.theme.media.lg} {
+    flex-direction: row;
+    gap: 3rem;
+  }
+
+  ${(props) => props.theme.media.xl} {
+    gap: 4rem;
+  }
+
+  ${(props) => props.theme.media["2xl"]} {
+    gap: 5rem;
+  }
+`;
+
+const FormColumn = styled.div`
+  width: 100%;
+
+  ${(props) => props.theme.media.lg} {
+    width: 48%;
+  }
+
+  ${(props) => props.theme.media.xl} {
+    width: 45%;
+  }
+
+  ${(props) => props.theme.media["2xl"]} {
+    width: 40%;
+  }
+`;
+
+const PreviewColumn = styled.div`
+  width: 100%;
+
+  ${(props) => props.theme.media.lg} {
+    width: 52%;
+  }
+
+  ${(props) => props.theme.media.xl} {
+    width: 55%;
+  }
+
+  ${(props) => props.theme.media["2xl"]} {
+    width: 60%;
+  }
+`;
 
 const ResumeBuilder: React.FC = () => {
   // Default resume data structure
@@ -218,102 +327,111 @@ const ResumeBuilder: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 xl:max-w-full 2xl:px-8">
-      <header className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-800">Resume Builder</h1>
-        <p className="text-gray-600">Create a professional resume in minutes</p>
+    <PageContainer>
+      <Header>
+        <Heading1>Resume Builder</Heading1>
+        <Text>Create a professional resume in minutes</Text>
 
         {showLastEditedNotice && lastEdited && (
-          <div className="mt-2 text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block">
+          <NoticeMessage>
             Loaded your resume from {formatLastEdited(lastEdited)}
-          </div>
+          </NoticeMessage>
         )}
-      </header>
+      </Header>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <ContentLayout>
         {/* Form Section */}
-        <div className="w-full lg:w-[45%] xl:w-[40%] 2xl:w-1/3 space-y-6">
-          <div className="flex flex-wrap gap-2 mb-6">
-            <button
+        <FormColumn>
+          <ButtonGroup>
+            <Button
               onClick={exportToPdf}
               disabled={isPdfExporting}
-              className={`px-4 py-2 bg-blue-600 text-white rounded ${
-                isPdfExporting
-                  ? "opacity-75 cursor-not-allowed"
-                  : "hover:bg-blue-700"
-              }`}
+              variant={isPdfExporting ? undefined : "primary"}
+              style={{
+                opacity: isPdfExporting ? 0.75 : 1,
+                cursor: isPdfExporting ? "not-allowed" : "pointer",
+              }}
             >
               {isPdfExporting ? "Generating PDF..." : "Export to PDF"}
-            </button>
-            <button
-              onClick={exportToDocx}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-            >
+            </Button>
+            <Button onClick={exportToDocx} variant="success">
               Export to DOCX
-            </button>
-            <button
-              onClick={resetForm}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
+            </Button>
+            <Button onClick={resetForm} variant="error">
               Reset
-            </button>
+            </Button>
 
             {lastEdited && (
-              <span className="text-xs text-gray-500 self-center ml-auto">
+              <LastSavedText>
                 Last saved: {formatLastEdited(lastEdited)}
-              </span>
+              </LastSavedText>
             )}
-          </div>
+          </ButtonGroup>
 
-          <TemplateSelector
-            selectedTemplate={selectedTemplate}
-            onSelectTemplate={setSelectedTemplate}
-          />
+          <CollapsibleSection title="Template & Layout" defaultExpanded={true}>
+            <TemplateSelector
+              selectedTemplate={selectedTemplate}
+              onSelectTemplate={setSelectedTemplate}
+            />
 
-          <MarginSizeSelector
-            selectedMarginSize={marginSize}
-            onChange={setMarginSize}
-          />
+            <Spacer size={4} />
 
-          <PersonalInfo
-            personalData={resumeData.personal}
-            setPersonalData={(data) =>
-              setResumeData({ ...resumeData, personal: data })
-            }
-          />
+            <MarginSizeSelector
+              selectedMarginSize={marginSize}
+              onChange={setMarginSize}
+            />
+          </CollapsibleSection>
 
-          <Experience
-            experienceData={resumeData.experience}
-            setExperienceData={(data) =>
-              setResumeData({ ...resumeData, experience: data })
-            }
-          />
+          <CollapsibleSection
+            title="Personal Information"
+            defaultExpanded={true}
+          >
+            <PersonalInfo
+              personalData={resumeData.personal}
+              setPersonalData={(data) =>
+                setResumeData({ ...resumeData, personal: data })
+              }
+            />
+          </CollapsibleSection>
 
-          <Education
-            educationData={resumeData.education}
-            setEducationData={(data) =>
-              setResumeData({ ...resumeData, education: data })
-            }
-          />
+          <CollapsibleSection title="Work Experience">
+            <Experience
+              experienceData={resumeData.experience}
+              setExperienceData={(data) =>
+                setResumeData({ ...resumeData, experience: data })
+              }
+            />
+          </CollapsibleSection>
 
-          <Skills
-            skillsData={resumeData.skills}
-            setSkillsData={(data) =>
-              setResumeData({ ...resumeData, skills: data })
-            }
-          />
-        </div>
+          <CollapsibleSection title="Education">
+            <Education
+              educationData={resumeData.education}
+              setEducationData={(data) =>
+                setResumeData({ ...resumeData, education: data })
+              }
+            />
+          </CollapsibleSection>
+
+          <CollapsibleSection title="Skills">
+            <Skills
+              skillsData={resumeData.skills}
+              setSkillsData={(data) =>
+                setResumeData({ ...resumeData, skills: data })
+              }
+            />
+          </CollapsibleSection>
+        </FormColumn>
 
         {/* Preview Section */}
-        <div className="w-full lg:w-[55%] xl:w-[60%] 2xl:w-2/3">
+        <PreviewColumn>
           <DynamicScalingPreview
             resumeData={resumeData}
             selectedTemplate={selectedTemplate}
             marginSize={marginSize}
           />
-        </div>
-      </div>
-    </div>
+        </PreviewColumn>
+      </ContentLayout>
+    </PageContainer>
   );
 };
 
