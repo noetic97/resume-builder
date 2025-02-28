@@ -7,7 +7,7 @@ const TemplateSelector = ({ selectedTemplate, onSelectTemplate }) => {
     <div className="bg-white p-6 rounded-lg shadow-md mb-6">
       <h2 className="text-xl font-semibold mb-4">Choose a Template</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4">
         {TEMPLATES_LIST.map((template) => (
           <div
             key={template.id}
